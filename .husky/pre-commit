@@ -1,0 +1,40 @@
+#!/bin/sh
+
+# Define colors for output
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+PRETTIER_CMD="npx prettier --write ."
+LINT_CMD="npx next lint --quiet"
+TSC_VERSION_CMD="npx tsc --version"
+TSC_CMD="npx tsc --noEmit --skipLibCheck --incremental"
+
+# Run Prettier and capture the output
+echo "${BLUE}Running Prettier...${NC}"
+FORMATTED_FILES=$($PRETTIER_CMD | grep -v "unchanged" | awk '{print $1}' || true)
+
+# Check if any files were formatted and restage them
+if [ -n "$FORMATTED_FILES" ]; then
+  echo "${GREEN}Files formatted by Prettier:${NC}"
+  echo "$FORMATTED_FILES" | while read -r file; do
+    echo "  ${YELLOW}$file${NC}"
+  done
+  echo "$FORMATTED_FILES" | xargs git add
+else
+  echo "${GREEN}No files needed formatting.${NC}"
+fi
+
+# Run Next.js linter
+echo "${BLUE}Running Next.js linter...${NC}"
+$LINT_CMD
+
+# Log and run TypeScript check
+echo "${BLUE}Running TypeScript check ($($TSC_VERSION_CMD))...${NC}"
+$TSC_CMD
+
+# Final message
+echo "${GREEN}Pre-commit checks complete!${NC}"
+
+exit 0

@@ -48,4 +48,30 @@ model User {
     image         String?
     accounts      Account[]
     sessions      Session[]
+    reviews       Review[]
+    comments      Comment[]
+}
+
+model Review {
+    id        String   @id @default(cuid())
+    comment   String?
+    companyId String   @map("company_id")
+    jobTitle  String?
+    rating    Int
+    createdAt DateTime @default(now())
+
+    userId  String    @map("user_id")
+    user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    Comment Comment[]
+}
+
+model Comment {
+    id        String   @id @default(cuid())
+    comment   String?
+    createdAt DateTime @default(now())
+
+    reviewId String @map("review_id")
+    review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+    userId   String @map("user_id")
+    user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

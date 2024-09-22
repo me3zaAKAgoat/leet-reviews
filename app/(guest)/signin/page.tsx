@@ -1,42 +1,31 @@
-// "use client";
-// import { signIn } from "next-auth/react";
-// import { signIn } from "@/lib/auth";
 import { signIn } from "@/lib/auth";
-import { providerMap } from "@/lib/auth";
+import { providerFortyTwo } from "@/lib/auth";
+import Image from "next/image";
 
 export default function Layout() {
   return (
-    <main>
-      <h1>Log in</h1>
-      {Object.values(providerMap).map((provider) => (
-        <form
-          action={async () => {
-            "use server";
-            try {
-              await signIn(provider.id, {
-                redirectTo: "/dashboard",
-              });
-            } catch (error) {
-              // Signin can fail for a number of reasons, such as the user
-              // not existing, or the user not having the correct role.
-              // In some cases, you may want to redirect to a custom error
-              //   if (error instanceof AuthError) {
-              //     return redirect(`${SIGNIN_ERROR_URL}?error=${error.type}`)
-              //   }
-
-              // Otherwise if a redirects happens Next.js can handle it
-              // so you can just re-thrown the error and let Next.js handle it.
-              // Docs:
-              // https://nextjs.org/docs/app/api-reference/functions/redirect#server-component
-              throw error;
-            }
-          }}
+    <main className="flex flex-col items-center justify-center h-screen">
+      <form
+        action={async () => {
+          "use server";
+          await signIn(providerFortyTwo.id, {
+            redirectTo: "/dashboard",
+          });
+        }}
+      >
+        <button
+          type="submit"
+          className="flex items-center gap-6 font-bold bg-white text-black px-4 py-1 rounded"
         >
-          <button type="submit">
-            <span>Sign in with {provider.name}</span>
-          </button>
-        </form>
-      ))}
+          <Image
+            src="https://upload.wikimedia.org/wikipedia/commons/8/8d/42_Logo.svg"
+            width={40}
+            height={40}
+            alt="42"
+          />
+          Sign in with 42
+        </button>
+      </form>
     </main>
   );
 }

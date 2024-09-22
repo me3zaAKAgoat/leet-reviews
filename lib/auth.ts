@@ -1,4 +1,4 @@
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import prisma from "@/lib/prisma";
 import FortyTwo from "next-auth/providers/42-school";
 import NextAuth, { NextAuthConfig } from "next-auth";
@@ -10,14 +10,10 @@ const providers = [
   }),
 ];
 
-export const providerMap = providers.map((provider) => {
-  if (typeof provider === "function") {
-    const providerData = (provider as any)();
-    return { id: providerData.id, name: providerData.name };
-  } else {
-    return { id: provider.id, name: provider.name };
-  }
-});
+export const providerFortyTwo = {
+  id: providers[0].id,
+  name: providers[0].name,
+};
 
 export const authOptions: NextAuthConfig = {
   providers,
@@ -27,9 +23,9 @@ export const authOptions: NextAuthConfig = {
   pages: {
     signIn: "/signin",
     //     signOut: "/signout",
-    //     error: "/error", // Error code passed in query string as ?error=
-    //     verifyRequest: "/verify-request", // (used for check email message)
-    //     newUser: "/dashboard", // New users will be directed here on first sign in (leave the property out if not of interest)
+    error: "/error", // Error code passed in query string as ?error=
+    verifyRequest: "/verify-request", // (used for check email message)
+    newUser: "/dashboard", // New users will be directed here on first sign in (leave the property out if not of interest)
   },
 };
 

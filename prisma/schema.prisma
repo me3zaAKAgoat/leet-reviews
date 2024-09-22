@@ -53,12 +53,12 @@ model User {
 }
 
 model Review {
-    id                    String   @id @default(cuid())
-    experienceDescription String?
-    companyId             String   @map("company_id")
-    jobTitle              String?
-    rating                Int
-    createdAt             DateTime @default(now())
+    id          String   @id @default(cuid())
+    description String?
+    companyId   String   @map("company_id")
+    jobTitle    String?
+    rating      Int
+    createdAt   DateTime @default(now())
 
     userId   String    @map("user_id")
     user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)

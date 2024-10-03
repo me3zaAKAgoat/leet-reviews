@@ -1,9 +1,24 @@
 "use client";
-import Image from "next/image";
+// import Image from "next/image";
 import { Rating } from "react-simple-star-rating";
 import { Button } from "@/components/ui/button";
 
-export default function ReviewCard({ Review }: any) {
+export default function ReviewCard({
+  Review,
+}: {
+  Review: {
+    company: {
+      name: string;
+      location: string;
+      image: string;
+    };
+    review: {
+      rating: number;
+      description: string;
+      createdAt: string;
+    };
+  };
+}) {
   return (
     <div className="flex flex-col sm:flex-row gap-4 p-4 border border-stone-500 rounded-sm">
       <div className="flex sm:flex-col gap-4">

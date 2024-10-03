@@ -9,10 +9,17 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  //   DialogDescription,
+  //   DialogFooter,
+  //   DialogHeader,
+  //   DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default async function Layout({
   children,
@@ -30,7 +37,12 @@ export default async function Layout({
           <Image src="/logo.png" width={24} height={24} alt="home" />
         </Link>
         <div className="flex items-center gap-4">
-          <Button className="font-bold">Add A Review</Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button className="font-bold">Add A Review</Button>
+            </DialogTrigger>
+            <DialogContent></DialogContent>
+          </Dialog>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar>
@@ -43,8 +55,6 @@ export default async function Layout({
             </DropdownMenuTrigger>
 
             <DropdownMenuContent>
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuItem>Sign Out</DropdownMenuItem>
             </DropdownMenuContent>

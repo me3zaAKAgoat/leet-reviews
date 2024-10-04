@@ -3,16 +3,32 @@ import localFont from "next/font/local";
 import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
 import { auth } from "@/lib/auth";
+import { IBM_Plex_Mono } from "next/font/google";
+import { cn } from "@/lib/utils";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+// const geistSans = localFont({
+//   src: "./fonts/GeistVF.woff",
+//   variable: "--font-geist-sans",
+//   weight: "100 900",
+// });
+// const geistMono = localFont({
+//   src: "./fonts/GeistMonoVF.woff",
+//   variable: "--font-geist-mono",
+//   weight: "100 900",
+// });
+
+const fontHeading = IBM_Plex_Mono({
+  weight: "700",
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-heading",
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+
+const fontBody = IBM_Plex_Mono({
+  weight: "400",
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-body",
 });
 
 export const metadata: Metadata = {
@@ -30,7 +46,11 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+        className={cn(
+          `antialiased flex flex-col min-h-screen`,
+          fontHeading.variable,
+          fontBody.variable,
+        )}
       >
         <SessionProvider session={session}>{children}</SessionProvider>
       </body>

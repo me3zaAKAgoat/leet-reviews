@@ -1,5 +1,9 @@
 <h1 align="center"><strong>Student Internship Review Platform</strong></h1>
 
+## Discord Server
+
+https://discord.gg/cjfAPpw4uX
+
 ## Overview
 
     How to contribute

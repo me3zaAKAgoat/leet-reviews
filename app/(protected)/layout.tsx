@@ -1,25 +1,25 @@
-import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import Link from "next/link";
-import Image from "next/image";
+import { ReviewModalComponent } from "@/components/review-modal";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { AvatarFallback } from "@radix-ui/react-avatar";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
-  DialogContent,
   //   DialogDescription,
   //   DialogFooter,
   //   DialogHeader,
   //   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { auth } from "@/lib/auth";
+import { AvatarFallback } from "@radix-ui/react-avatar";
+import Image from "next/image";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function Layout({
   children,
@@ -41,7 +41,7 @@ export default async function Layout({
             <DialogTrigger asChild>
               <Button className="font-bold">Add A Review</Button>
             </DialogTrigger>
-            <DialogContent></DialogContent>
+            <ReviewModalComponent />
           </Dialog>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -13,8 +13,7 @@ import { format } from "date-fns";
 import { Search } from "lucide-react";
 
 export default function Reviews() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars //
-  const [reviews, setReviews] = useState([
+  const [reviews] = useState([
     {
       id: 1,
       company: "Acme Inc",

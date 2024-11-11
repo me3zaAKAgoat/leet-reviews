@@ -1,10 +1,9 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
 import SessionProvider from "@/components/SessionProvider";
 import { auth } from "@/lib/auth";
-import { IBM_Plex_Mono } from "next/font/google";
 import { cn } from "@/lib/utils";
+import type { Metadata } from "next";
+import { IBM_Plex_Mono } from "next/font/google";
+import "./globals.css";
 
 // const geistSans = localFont({
 //   src: "./fonts/GeistVF.woff",

@@ -1,14 +1,7 @@
 import { ReviewModalComponent } from "@/components/review-modal";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  //   DialogDescription,
-  //   DialogFooter,
-  //   DialogHeader,
-  //   DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +13,7 @@ import { AvatarFallback } from "@radix-ui/react-avatar";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Toaster } from "react-hot-toast";
 
 export default async function Layout({
   children,
@@ -37,6 +31,7 @@ export default async function Layout({
           <Image src="/logo.png" width={24} height={24} alt="home" />
         </Link>
         <div className="flex items-center gap-4">
+          <Toaster />
           <Dialog>
             <DialogTrigger asChild>
               <Button className="font-bold">Add A Review</Button>

@@ -21,7 +21,7 @@ export const POST = auth(async function POST(req) {
   // Add review to database
 
   try {
-    const review = await prisma.review.create({
+    await prisma.review.create({
       data: {
         companyId: "21",
         contractType: data.contractType,

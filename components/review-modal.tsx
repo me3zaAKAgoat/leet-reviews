@@ -30,6 +30,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon, Star } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
+import toast, { Toaster } from "react-hot-toast";
 
 export function ReviewModalComponent() {
   // const [startDate, setStartDate] = useState<Date>()
@@ -65,16 +66,23 @@ export function ReviewModalComponent() {
   const onSubmit = async (data: ReviewFormValues) => {
     console.log(data);
     // Handle form submission
-    const res = await fetch("/api/AddReview", {
+    const myPromise = fetch("/api/AddReview", {
       method: "POST",
       body: JSON.stringify(data),
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if (res.ok) {
-      console.log("Review added");
-    } else console.log("Error adding review");
+    toast.promise(myPromise, {
+      loading: "Loading",
+      success: (data) => {
+        if (!data.ok) {
+          throw new Error(`Statues code ${data.status}`);
+        }
+        return "Review added";
+      },
+      error: "Failed To Add the Review",
+    });
   };
 
   return (

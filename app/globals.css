@@ -4,26 +4,37 @@
 
 @layer base {
   :root {
-    --background: 0 0% 85%;
-    --foreground: 0 0% 10%;
-    --primary: 0 0% 80%;
-    --primary-foreground: 0 0% 10%;
-    --secondary: 0 0% 70%;
-    --secondary-foreground: 0 0% 10%;
-    --accent: 240 100% 50%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 32%;
-    --destructive-foreground: 0 0% 98%;
-    --muted: 0 0% 75%;
-    --muted-foreground: 0 0% 10%;
-    --card: 0 0% 95%;
-    --card-foreground: 0 0% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --border: 0 0% 60%;
-    --input: 0 0% 60%;
-    --ring: 0 0% 10%;
-    --radius: 0rem;
+    /* CSS: .bg-gradient { background: var(--gradient) } */
+    --gradient: linear-gradient(to top left, #fddb92, #d1fdff);
+
+    --background: 43 62.4% 6.24%;
+    --foreground: 43 9.6% 98.9%;
+
+    --muted: 43 48% 23.400000000000002%;
+    --muted-foreground: 43 9.6% 57.8%;
+
+    --popover: 43 45.8% 10.14%;
+    --popover-foreground: 43 9.6% 98.9%;
+
+    --card: 43 45.8% 10.14%;
+    --card-foreground: 43 9.6% 98.9%;
+
+    --border: 43 48% 23.400000000000002%;
+    --input: 43 48% 23.400000000000002%;
+
+    --primary: 43 96% 78%;
+    --primary-foreground: 43 9.6% 7.800000000000001%;
+
+    --secondary: 43 48% 23.400000000000002%;
+    --secondary-foreground: 43 9.6% 98.9%;
+
+    --accent: 43 48% 23.400000000000002%;
+    --accent-foreground: 43 9.6% 98.9%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 43 9.6% 98.9%;
+
+    --ring: 43 96% 78%;
   }
 }
 

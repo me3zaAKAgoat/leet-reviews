@@ -13,8 +13,7 @@ import { format } from "date-fns";
 import { Search } from "lucide-react";
 
 export default function Reviews() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars //
-  const [reviews, setReviews] = useState([
+  const [reviews] = useState([
     {
       id: 1,
       company: "Acme Inc",
@@ -79,7 +78,7 @@ export default function Reviews() {
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Student Internship Reviews</h1>
-        <Button>Add Review</Button>
+        <Button>Add Revieew</Button>
       </div>
 
       <div className="flex items-center mb-6">

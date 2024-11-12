@@ -30,7 +30,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon, Star } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 export function ReviewModalComponent() {
   // const [startDate, setStartDate] = useState<Date>()

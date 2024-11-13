@@ -24,23 +24,18 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { ReviewFormValues, reviewSchema } from "@/lib/types";
+import { CompanyType, ReviewFormValues, reviewSchema } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon, Star } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { ComboboxDemoComponent } from "./combobox-demo";
+import { useEffect, useState } from "react";
 
 export function ReviewModalComponent() {
-  // const [startDate, setStartDate] = useState<Date>()
-  // const [endDate, setEndDate] = useState<Date>()
-  // const [applicationDate, setApplicationDate] = useState<Date>()
-  // const [rating, setRating] = useState(0)
-  // const [salaryType, setSalaryType] = useState<'EXACT' | 'RANGE'>('EXACT')
-  // const [interviewDifficulty, setInterviewDifficulty] = useState(3)
-
-  // new
+  const [companies, setCompanies] = useState<CompanyType[]>([]);
   const {
     register,
     control,
@@ -55,14 +50,15 @@ export function ReviewModalComponent() {
       anonymous: false,
       interviewDifficulty: 3,
       salaryType: "EXACT",
+      // salary: 0
     },
   });
 
   const salaryType = watch("salaryType");
 
-  // const onError = (errors: any) => {
-  //   console.log(errors);
-  // };
+  const onError = (errors: any) => {
+    console.log(errors);
+  };
   const onSubmit = async (data: ReviewFormValues) => {
     console.log(data);
     // Handle form submission
@@ -85,13 +81,19 @@ export function ReviewModalComponent() {
     });
   };
 
+  useEffect(() => {
+    fetch("/api/getCompanies")
+      .then((res) => res.json())
+      .then((data) => setCompanies(data));
+  }, []);
+
   return (
     <DialogContent className="w-full max-w-4xl h-[90vh] overflow-y-auto">
       <DialogHeader>
         <DialogTitle>Submit Your Review</DialogTitle>
       </DialogHeader>
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit, onError)}
         className="grid gap-4 py-4 md:grid-cols-2"
       >
         <div className="grid gap-2">
@@ -101,25 +103,19 @@ export function ReviewModalComponent() {
             {...register("jobTitle")}
             className={cn(errors.jobTitle && "border-red-500")}
           />
-          {errors.jobTitle && (
-            <span className="text-sm text-red-500">
-              {errors.jobTitle.message}
-            </span>
-          )}
         </div>
+
+        {/* Company */}
         <div className="grid gap-2">
           <Label htmlFor="companyId">Company</Label>
-          <Input
-            id="companyId"
-            {...register("companyId")}
-            className={cn(errors.companyId && "border-red-500")}
+
+          <ComboboxDemoComponent
+            companies={companies}
+            control={control}
+            errors={errors.companyId}
           />
-          {errors.companyId && (
-            <span className="text-sm text-red-500">
-              {errors.companyId.message}
-            </span>
-          )}
         </div>
+        {/* Company */}
 
         <div className="grid gap-2">
           <Label htmlFor="contractType">Contract Type</Label>
@@ -128,7 +124,12 @@ export function ReviewModalComponent() {
             control={control}
             render={({ field }) => (
               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger>
+                <SelectTrigger
+                  className={cn(
+                    errors.contractType &&
+                      "border-red-500 focus-visible:ring-red-500",
+                  )}
+                >
                   <SelectValue placeholder="Select contract type" />
                 </SelectTrigger>
                 <SelectContent>
@@ -141,11 +142,11 @@ export function ReviewModalComponent() {
               </Select>
             )}
           />
-          {errors.contractType && (
+          {/* {errors.contractType && (
             <span className="text-sm text-red-500">
               {errors.contractType.message}
             </span>
-          )}
+          )} */}
         </div>
 
         <div className="grid gap-2">
@@ -155,7 +156,12 @@ export function ReviewModalComponent() {
             control={control}
             render={({ field }) => (
               <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <SelectTrigger>
+                <SelectTrigger
+                  className={cn(
+                    errors.jobSource &&
+                      "border-red-500 focus-visible:ring-red-500",
+                  )}
+                >
                   <SelectValue placeholder="Select job source" />
                 </SelectTrigger>
                 <SelectContent>
@@ -209,11 +215,6 @@ export function ReviewModalComponent() {
               </Popover>
             )}
           />
-          {errors.startDate && (
-            <span className="text-sm text-red-500">
-              {errors.startDate.message}
-            </span>
-          )}
         </div>
 
         <div className="grid gap-2">
@@ -274,15 +275,12 @@ export function ReviewModalComponent() {
             <Input
               id="salary"
               type="number"
-              {...register("salary", { valueAsNumber: true })}
+              {...register("salary", {
+                setValueAs: (v) => (v === "" ? undefined : parseInt(v, 10)),
+              })}
               className={cn(errors.salary && "border-red-500")}
               placeholder="Enter exact salary"
             />
-            {errors.salary && (
-              <span className="text-sm text-red-500">
-                {errors.salary.message}
-              </span>
-            )}
           </div>
         ) : (
           <>
@@ -295,11 +293,6 @@ export function ReviewModalComponent() {
                 className={cn(errors.salaryMin && "border-red-500")}
                 placeholder="Enter minimum salary"
               />
-              {errors.salaryMin && (
-                <span className="text-sm text-red-500">
-                  {errors.salaryMin.message}
-                </span>
-              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="salaryMax">Maximum Salary</Label>
@@ -310,11 +303,6 @@ export function ReviewModalComponent() {
                 className={cn(errors.salaryMax && "border-red-500")}
                 placeholder="Enter maximum salary"
               />
-              {errors.salaryMax && (
-                <span className="text-sm text-red-500">
-                  {errors.salaryMax.message}
-                </span>
-              )}
             </div>
           </>
         )}
@@ -327,11 +315,6 @@ export function ReviewModalComponent() {
             className={cn(errors.location && "border-red-500")}
             placeholder="Office location/city"
           />
-          {errors.location && (
-            <span className="text-sm text-red-500">
-              {errors.location.message}
-            </span>
-          )}
         </div>
 
         <div className="grid gap-2">

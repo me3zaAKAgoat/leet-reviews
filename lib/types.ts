@@ -1,4 +1,5 @@
 import * as z from "zod";
+import type * as Prisma from "@prisma/client";
 
 // Define the form schema using Zod
 export const reviewSchema = z
@@ -55,3 +56,4 @@ export const reviewSchema = z
   );
 
 export type ReviewFormValues = z.infer<typeof reviewSchema>;
+export type CompanyType = Prisma.Company;

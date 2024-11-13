@@ -143,12 +143,12 @@ export function ComboboxDemoComponent({
                       //   const newValue = await handleSelect(`new:${inputValue}`);
                       //   field.onChange(newValue);
                       // }}
-                      onSelect={(value) => {
+                      onSelect={() => {
                         handleSelect(`new:${inputValue}`, field.onChange);
                       }}
                     >
                       <PlusIcon className="mr-2 h-4 w-4" />
-                      Create "{inputValue}"
+                      Create &quot;{inputValue}&quot;
                     </CommandItem>
                   )}
               </CommandList>

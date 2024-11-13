@@ -71,10 +71,23 @@ enum SalaryRangeType {
     RANGE
 }
 
+model Company {
+  id          String   @id @default(cuid())
+  name        String
+  website     String?
+  location    String?  // City or region
+  createdAt   DateTime @default(now())
+  reviews     Review[]
+
+  @@unique([name, location]) // Prevent duplicate companies in same location
+  @@index([name]) // For faster search
+}
+
 model Review {
     id              String        @id @default(cuid())
     description     String?
     companyId       String        @map("company_id")
+    company         Company       @relation(fields: [companyId], references: [id])
     jobTitle        String
     rating          Int
     createdAt       DateTime      @default(now())

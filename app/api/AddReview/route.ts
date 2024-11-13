@@ -23,7 +23,7 @@ export const POST = auth(async function POST(req) {
   try {
     await prisma.review.create({
       data: {
-        companyId: "21",
+        companyId: data.companyId,
         contractType: data.contractType,
         jobSource: data.jobSource,
         startDate: data.startDate,
@@ -44,7 +44,8 @@ export const POST = auth(async function POST(req) {
         userId: req.auth?.user?.id ?? "",
       },
     });
-  } catch {
+  } catch (e) {
+    console.log(e);
     return NextResponse.json(
       { message: "Error adding review" },
       { status: 500 },

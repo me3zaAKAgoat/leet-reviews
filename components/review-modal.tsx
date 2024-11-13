@@ -24,13 +24,15 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { ReviewFormValues, reviewSchema } from "@/lib/types";
+import { CompanyType, ReviewFormValues, reviewSchema } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { CalendarIcon, Star } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
+import { ComboboxDemoComponent } from "./combobox-demo";
+import { useEffect, useState } from "react";
 
 export function ReviewModalComponent() {
   // const [startDate, setStartDate] = useState<Date>()
@@ -39,7 +41,7 @@ export function ReviewModalComponent() {
   // const [rating, setRating] = useState(0)
   // const [salaryType, setSalaryType] = useState<'EXACT' | 'RANGE'>('EXACT')
   // const [interviewDifficulty, setInterviewDifficulty] = useState(3)
-
+  const [companies, setCompanies] = useState<CompanyType[]>([]);
   // new
   const {
     register,
@@ -85,6 +87,12 @@ export function ReviewModalComponent() {
     });
   };
 
+  useEffect(() => {
+    fetch("/api/getCompanies")
+      .then((res) => res.json())
+      .then((data) => setCompanies(data));
+  }, []);
+
   return (
     <DialogContent className="w-full max-w-4xl h-[90vh] overflow-y-auto">
       <DialogHeader>
@@ -107,19 +115,19 @@ export function ReviewModalComponent() {
             </span>
           )}
         </div>
+
+        {/* Company */}
         <div className="grid gap-2">
           <Label htmlFor="companyId">Company</Label>
-          <Input
-            id="companyId"
-            {...register("companyId")}
-            className={cn(errors.companyId && "border-red-500")}
-          />
+
+          <ComboboxDemoComponent companies={companies} control={control} />
           {errors.companyId && (
             <span className="text-sm text-red-500">
               {errors.companyId.message}
             </span>
           )}
         </div>
+        {/* Company */}
 
         <div className="grid gap-2">
           <Label htmlFor="contractType">Contract Type</Label>

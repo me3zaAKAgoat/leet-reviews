@@ -57,3 +57,7 @@ export const reviewSchema = z
 
 export type ReviewFormValues = z.infer<typeof reviewSchema>;
 export type CompanyType = Prisma.Company;
+export type ReviewType = Prisma.Review;
+export type ReviewWithCompany = Prisma.Review & {
+  company: Prisma.Company;
+};

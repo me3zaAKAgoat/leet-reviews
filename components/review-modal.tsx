@@ -56,9 +56,9 @@ export function ReviewModalComponent() {
 
   const salaryType = watch("salaryType");
 
-  const onError = (errors: any) => {
-    console.log(errors);
-  };
+  // const onError = (errors: any) => {
+  //   console.log(errors);
+  // };
   const onSubmit = async (data: ReviewFormValues) => {
     console.log(data);
     // Handle form submission
@@ -93,7 +93,7 @@ export function ReviewModalComponent() {
         <DialogTitle>Submit Your Review</DialogTitle>
       </DialogHeader>
       <form
-        onSubmit={handleSubmit(onSubmit, onError)}
+        onSubmit={handleSubmit(onSubmit)}
         className="grid gap-4 py-4 md:grid-cols-2"
       >
         <div className="grid gap-2">

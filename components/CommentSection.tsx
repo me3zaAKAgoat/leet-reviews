@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ThumbsUp, User } from "lucide-react";
+import { LoaderCircle, ThumbsUp, User } from "lucide-react";
 import { CommentWithUser } from "@/lib/types";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
@@ -50,11 +50,11 @@ export default function CommentSection({
   reviewComments: CommentWithUser[];
 }) {
   const { data: session } = useSession();
-  console.log(session);
   const [comments, setComments] = useState<CommentWithUser[]>(reviewComments);
   const [newComment, setNewComment] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isLoading, setLoading] = useState(false);
+  const [loadingLikes, setLoadingLikes] = useState<Set<string>>(new Set());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,6 +74,7 @@ export default function CommentSection({
         createdAt: new Date(),
         anonymous: isAnonymous,
         likes: 0,
+        commentLikes: [],
       };
       const res = await fetch("/api/addComment", {
         method: "POST",
@@ -95,12 +96,48 @@ export default function CommentSection({
     }
   };
 
-  const handleLike = (id: string) => {
-    setComments(
-      comments.map((comment) =>
-        comment.id === id ? { ...comment, likes: comment.likes + 1 } : comment,
-      ),
-    );
+  const handleLike = async (id: string) => {
+    setLoadingLikes((prev) => new Set(prev).add(id));
+    try {
+      const res = await fetch("/api/updateComment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          commentId: id,
+          action: "LIKE",
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        console.error("Failed to like comment:", error.error);
+        setLoadingLikes((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(id);
+          return newSet;
+        });
+      }
+
+      setComments(
+        comments.map((comment) =>
+          comment.id === id
+            ? {
+                ...comment,
+                likes: comment.likes + 1,
+                commentLikes: [...comment.commentLikes, { commentId: id }],
+              }
+            : comment,
+        ),
+      );
+    } catch (err) {
+      console.log("error while liking comment", err);
+    } finally {
+      setLoadingLikes((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
+    }
   };
 
   return (
@@ -129,7 +166,6 @@ export default function CommentSection({
               isLoading ? "cursor-not-allowed opacity-70" : ""
             }`}
           >
-            {/* {isLoading ? <LoadingSpinner /> : "Post Comment"} */}
             <span className={isLoading ? "invisible" : ""}>Post Comment</span>
             {isLoading && (
               <span className="absolute inset-0 grid place-items-center ">
@@ -140,51 +176,64 @@ export default function CommentSection({
         </div>
       </form>
       <ScrollArea className="h-[600px] pr-4">
-        {comments.map((comment, index) => (
-          <div key={comment.id}>
-            <div className="flex items-start space-x-4 mb-4">
-              {comment.user ? (
-                <Avatar className="w-12 h-12 border-2 border-primary">
-                  {/* //fix this later */}
-                  <AvatarImage
-                    src={comment.user.image || "default url"}
-                    alt={comment.user.name || "Profile Pic"}
-                  />
-                  <AvatarFallback>
-                    {comment.user.name?.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-              ) : (
-                <Avatar className="w-12 h-12 border-2 border-primary">
-                  <AvatarFallback>
-                    <User className="w-6 h-6" />
-                  </AvatarFallback>
-                </Avatar>
-              )}
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">
-                    {comment.user ? comment.user.name : "Anonymous User"}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {timeAgo.format(comment.createdAt)}
+        {comments.map((comment, index) => {
+          const hasLiked = comment.commentLikes.length > 0;
+          return (
+            <div key={comment.id}>
+              <div className="flex items-start space-x-4 mb-4">
+                {comment.user ? (
+                  <Avatar className="w-12 h-12 border-2 border-primary">
+                    {/* //fix this later */}
+                    <AvatarImage
+                      src={comment.user.image || "default url"}
+                      alt={comment.user.name || "Profile Pic"}
+                    />
+                    <AvatarFallback>
+                      {comment.user.name?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                ) : (
+                  <Avatar className="w-12 h-12 border-2 border-primary">
+                    <AvatarFallback>
+                      <User className="w-6 h-6" />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">
+                      {comment.user ? comment.user.name : "Anonymous User"}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {timeAgo.format(comment.createdAt)}
+                    </p>
+                  </div>
+                  <p className="text-base text-foreground ">
+                    {comment.comment}
                   </p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    cursor-not-allowed
+                    className={`text-muted-foreground hover:text-primary`}
+                    disabled={loadingLikes.has(comment.id) || hasLiked}
+                    onClick={() => handleLike(comment.id)}
+                  >
+                    {loadingLikes.has(comment.id) ? (
+                      <LoaderCircle className={`animate-spin w-4 h-4 mr-1 `} />
+                    ) : (
+                      <ThumbsUp
+                        className={`w-4 h-4 mr-1 ${loadingLikes.has(comment.id) || hasLiked ? "text-primary" : ""}`}
+                      />
+                    )}
+                    <span>{comment.likes}</span>
+                  </Button>
                 </div>
-                <p className="text-base text-foreground">{comment.comment}</p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-primary"
-                  onClick={() => handleLike(comment.id)}
-                >
-                  <ThumbsUp className="w-4 h-4 mr-1" />
-                  <span>{comment.likes}</span>
-                </Button>
               </div>
+              {index < comments.length - 1 && <Separator className="my-6" />}
             </div>
-            {index < comments.length - 1 && <Separator className="my-6" />}
-          </div>
-        ))}
+          );
+        })}
       </ScrollArea>
     </div>
   );

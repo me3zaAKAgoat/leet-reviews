@@ -79,5 +79,17 @@ export type CommentWithUser = Prisma.Prisma.CommentGetPayload<{
         image: true;
       };
     };
+    commentLikes: {
+      select: {
+        commentId: true;
+      };
+    };
   };
 }>;
+
+export const CommentUpdate = z.object({
+  commentId: z.string().cuid(),
+  action: z.enum(["LIKE"]), // later we may add DISLIKE , UPDATE(to update a comment) , DELETE
+});
+
+export type CommentUpdateType = z.infer<typeof CommentUpdate>;

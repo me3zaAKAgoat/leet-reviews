@@ -1,135 +1,149 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
-    directUrl = env("DIRECT_URL") //https://www.prisma.io/docs/orm/overview/databases/supabase //prisma jato zmla (l9afya a bb)
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") //https://www.prisma.io/docs/orm/overview/databases/supabase //prisma jato zmla (l9afya a bb)
 }
 
 model Account {
-    id                 String  @id @default(cuid())
-    userId             String  @map("user_id")
-    type               String
-    provider           String
-    providerAccountId  String  @map("provider_account_id")
-    refresh_token      String?
-    access_token       String?
-    expires_at         Int?
-    created_at         Int?
-    token_type         String?
-    scope              String?
-    id_token          String?
-    session_state      String?
-    oauth_token_secret String?
-    oauth_token        String?
-    secret_valid_until Int?
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-    @@unique([provider, providerAccountId])
+  id                 String  @id @default(cuid())
+  userId             String  @map("user_id")
+  type               String
+  provider           String
+  providerAccountId  String  @map("provider_account_id")
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  created_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+  oauth_token_secret String?
+  oauth_token        String?
+  secret_valid_until Int?
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
 
 model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique @map("session_token")
-    userId       String   @map("user_id")
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    reviews       Review[]
-    comments      Comment[]
+  id            String        @id @default(cuid())
+  name          String?
+  email         String?       @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  reviews       Review[]
+  comments      Comment[]
+  CommentLike   CommentLike[]
 }
 
 enum ContractType {
-    INTERNSHIP
-    CDI
-    CDD
-    FREELANCE
-    OTHER
+  INTERNSHIP
+  CDI
+  CDD
+  FREELANCE
+  OTHER
 }
 
 enum JobSource {
-    FRIEND_REFERRAL
-    LINKEDIN
-    COMPANY_WEBSITE
-    JOB_BOARD
-    CAREER_FAIR
-    OTHER
+  FRIEND_REFERRAL
+  LINKEDIN
+  COMPANY_WEBSITE
+  JOB_BOARD
+  CAREER_FAIR
+  OTHER
 }
 
 enum SalaryRangeType {
-    EXACT
-    RANGE
+  EXACT
+  RANGE
 }
 
 model Company {
-  id          String   @id @default(cuid())
-  name        String
-  website     String?
-  location    String?  // City or region
-  createdAt   DateTime @default(now())
-  reviews     Review[]
+  id        String   @id @default(cuid())
+  name      String
+  website   String?
+  location  String? // City or region
+  createdAt DateTime @default(now())
+  reviews   Review[]
 
   @@unique([name, location]) // Prevent duplicate companies in same location
   @@index([name]) // For faster search
 }
 
 model Review {
-    id              String        @id @default(cuid())
-    description     String?
-    companyId       String        @map("company_id")
-    company         Company       @relation(fields: [companyId], references: [id])
-    jobTitle        String
-    rating          Int
-    createdAt       DateTime      @default(now())
-    userId          String        @map("user_id")
-    user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-    comments        Comment[]
+  id          String    @id @default(cuid())
+  description String?
+  companyId   String    @map("company_id")
+  company     Company   @relation(fields: [companyId], references: [id])
+  jobTitle    String
+  rating      Int
+  createdAt   DateTime  @default(now())
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comments    Comment[]
 
-    // New fields
-    contractType    ContractType
-    jobSource       JobSource
-    startDate       DateTime
-    endDate         DateTime?     // Optional for ongoing positions
+  // New fields
+  contractType ContractType
+  jobSource    JobSource
+  startDate    DateTime
+  endDate      DateTime? // Optional for ongoing positions
 
-    // Salary information
-    salaryType      SalaryRangeType
-    exactSalary     Int?      // Used when salaryType is EXACT
-    salaryRangeMin  Int?      // Used when salaryType is RANGE
-    salaryRangeMax  Int?      // Used when salaryType is RANGE
+  // Salary information
+  salaryType     SalaryRangeType
+  exactSalary    Int? // Used when salaryType is EXACT
+  salaryRangeMin Int? // Used when salaryType is RANGE
+  salaryRangeMax Int? // Used when salaryType is RANGE
 
-    // Additional metadata
-    isAnonymous     Boolean       @default(false)
-    location        String?       // Office location/city
-    wouldRecommend  Boolean?      // Would recommend to others
+  // Additional metadata
+  isAnonymous    Boolean  @default(false)
+  location       String? // Office location/city
+  wouldRecommend Boolean? // Would recommend to others
 
-    // Interview process details
-    interviewDifficulty Int?      // Scale 1-5
-    interviewProcess    String?   // Description of interview process
-    applicationDate     DateTime?  // When they applied
+  // Interview process details
+  interviewDifficulty Int? // Scale 1-5
+  interviewProcess    String? // Description of interview process
+  applicationDate     DateTime? // When they applied
 
-    slug             String  @unique //nanoid(8) generated for something like /Review/[slug]
-    @@index([companyId])
-    @@index([contractType])
+  slug String @unique //nanoid(8) generated for something like /Review/[slug]
+
+  @@index([companyId])
+  @@index([contractType])
 }
 
 model Comment {
-    id        String   @id @default(cuid())
-    comment   String?
-    createdAt DateTime @default(now())
-    reviewId  String   @map("review_id")
-    review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-    userId    String   @map("user_id")
-    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    anonymous Boolean  @default(false)
-    likes    Int      @default(0)
+  id           String        @id @default(cuid())
+  comment      String?
+  createdAt    DateTime      @default(now())
+  reviewId     String        @map("review_id")
+  review       Review        @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId       String        @map("user_id")
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anonymous    Boolean       @default(false)
+  likes        Int           @default(0)
+  commentLikes CommentLike[] // Add this line to create the opposite relation field
+}
+
+model CommentLike {
+  id        String  @id @default(cuid())
+  commentId String  @map("comment_id")
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String  @map("user_id")
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId]) // Ensure a user can like a comment only once
 }

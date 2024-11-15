@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { LoaderIcon, ThumbsUp, User } from "lucide-react";
+import { ThumbsUp, User } from "lucide-react";
 import { CommentWithUser } from "@/lib/types";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
@@ -134,7 +134,6 @@ export default function CommentSection({
             {isLoading && (
               <span className="absolute inset-0 grid place-items-center ">
                 <LoadingSpinner />
-                {/* <LoaderIcon className="animate-spin size-10" /> */}
               </span>
             )}
           </Button>

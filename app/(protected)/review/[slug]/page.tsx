@@ -1,4 +1,5 @@
 import CommentSection from "@/components/CommentSection";
+import ReviewNotFound from "@/components/ReviewNotFound";
 import ReviewShowCase from "@/components/ReviewShowCase";
 import prisma from "@/lib/prisma";
 
@@ -28,7 +29,7 @@ export default async function ReviewShowcase({
   });
 
   if (!reviewData) {
-    return <div>Review Not found</div>;
+    return <ReviewNotFound reviewId={slug} />;
   }
   console.log(reviewData);
   console.log(reviewData.comments);

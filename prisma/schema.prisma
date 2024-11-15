@@ -130,4 +130,6 @@ model Comment {
     review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
     userId    String   @map("user_id")
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    anonymous Boolean  @default(false)
+    likes    Int      @default(0)
 }

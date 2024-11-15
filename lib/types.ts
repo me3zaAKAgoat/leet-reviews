@@ -3,6 +3,7 @@ import type * as Prisma from "@prisma/client";
 
 // Define the form schema using Zod
 export const commentSchema = z.object({
+  id: z.string().cuid(),
   comment: z
     .string()
     .min(2, { message: "Comment should be at least 2 characters!" }),

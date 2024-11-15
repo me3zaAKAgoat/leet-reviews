@@ -13,7 +13,10 @@ import { CommentWithUser } from "@/lib/types";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 import { useSession } from "next-auth/react";
-import { cn } from "@/lib/utils";
+import { cn, generateAnonymousId } from "@/lib/utils";
+import UserAvatar from "./UserAvatar";
+import cuid from "cuid";
+
 TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo("en-US");
 
@@ -59,6 +62,8 @@ export default function CommentSection({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newComment.trim()) {
+      const new_cuid = cuid();
+      console.log(new_cuid);
       setLoading(true);
       // oone day , ill try to use the new hook useOptimistic here .that day will never come
       const comment: CommentWithUser = {
@@ -70,7 +75,7 @@ export default function CommentSection({
           image: session?.user?.image || "image",
         },
         comment: newComment.trim(),
-        id: String(comments.length + 1),
+        id: new_cuid,
         createdAt: new Date(),
         anonymous: isAnonymous,
         likes: 0,
@@ -80,6 +85,7 @@ export default function CommentSection({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: new_cuid,
           comment: newComment,
           reviewId: reviewId,
           anonymous: isAnonymous,
@@ -139,7 +145,6 @@ export default function CommentSection({
       });
     }
   };
-
   return (
     <div className="w-full max-w-3xl mx-auto p-6 bg-background rounded-xl shadow-lg">
       <h2 className="text-3xl font-bold mb-8 text-center">Comments</h2>
@@ -182,16 +187,7 @@ export default function CommentSection({
             <div key={comment.id}>
               <div className="flex items-start space-x-4 mb-4">
                 {comment.user ? (
-                  <Avatar className="w-12 h-12 border-2 border-primary">
-                    {/* //fix this later */}
-                    <AvatarImage
-                      src={comment.user.image || "default url"}
-                      alt={comment.user.name || "Profile Pic"}
-                    />
-                    <AvatarFallback>
-                      {comment.user.name?.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <UserAvatar comment={comment} />
                 ) : (
                   <Avatar className="w-12 h-12 border-2 border-primary">
                     <AvatarFallback>
@@ -202,7 +198,9 @@ export default function CommentSection({
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">
-                      {comment.user ? comment.user.name : "Anonymous User"}
+                      {!comment.anonymous
+                        ? comment.user.name
+                        : generateAnonymousId(session?.user?.id)}
                     </h3>
                     <p className="text-sm text-muted-foreground">
                       {timeAgo.format(comment.createdAt)}

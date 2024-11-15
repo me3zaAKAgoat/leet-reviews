@@ -4,6 +4,7 @@ import { commentSchema } from "@/lib/types";
 import { NextResponse } from "next/server";
 
 type CommentFormValue = {
+  id: string;
   comment: string;
   reviewId: string;
   anonymous: boolean;
@@ -26,6 +27,7 @@ export const POST = auth(async function POST(req) {
   try {
     await prisma.comment.create({
       data: {
+        id: data.id,
         comment: data.comment,
         reviewId: data.reviewId,
         userId: req.auth?.user?.id ?? "",

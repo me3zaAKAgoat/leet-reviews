@@ -19,6 +19,12 @@ export const authOptions: NextAuthConfig = {
   providers,
   secret: process.env.NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma),
+  callbacks: {
+    session({ session, user }) {
+      session.user.id = user.id;
+      return session;
+    },
+  },
   basePath: "/api/auth",
   pages: {
     signIn: "/signin",

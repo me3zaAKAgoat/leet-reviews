@@ -2,10 +2,18 @@ import * as z from "zod";
 import type * as Prisma from "@prisma/client";
 
 // Define the form schema using Zod
+export const commentSchema = z.object({
+  comment: z
+    .string()
+    .min(2, { message: "Comment should be at least 2 characters!" }),
+  reviewId: z.string().cuid(),
+  anonymous: z.boolean(),
+});
+
 export const reviewSchema = z
   .object({
-    jobTitle: z.string().min(1, "Job title is required"),
-    companyId: z.string().min(1, "Company is required"),
+    jobTitle: z.string().min(2, "Job title is required"),
+    companyId: z.string().min(2, "Company is required"),
     contractType: z.enum(["INTERNSHIP", "CDI", "CDD", "FREELANCE", "OTHER"]),
     jobSource: z.enum([
       "FRIEND_REFERRAL",
@@ -57,3 +65,19 @@ export const reviewSchema = z
 
 export type ReviewFormValues = z.infer<typeof reviewSchema>;
 export type CompanyType = Prisma.Company;
+export type ReviewType = Prisma.Review;
+export type ReviewWithCompany = Prisma.Review & {
+  company: Prisma.Company;
+};
+export type CommentType = Prisma.Comment;
+
+export type CommentWithUser = Prisma.Prisma.CommentGetPayload<{
+  include: {
+    user: {
+      select: {
+        name: true;
+        image: true;
+      };
+    };
+  };
+}>;

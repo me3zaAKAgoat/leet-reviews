@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { ReviewFormValues, reviewSchema } from "@/lib/types";
 import { NextResponse } from "next/server";
+import { nanoid } from "nanoid";
 
 export const POST = auth(async function POST(req) {
   if (!req.auth)
@@ -42,6 +43,7 @@ export const POST = auth(async function POST(req) {
         interviewProcess: data.interviewProcess,
         description: data.description,
         userId: req.auth?.user?.id ?? "",
+        slug: nanoid(7),
       },
     });
   } catch (e) {

@@ -103,9 +103,9 @@ model Review {
 
     // Salary information
     salaryType      SalaryRangeType
-    exactSalary     Decimal?      // Used when salaryType is EXACT
-    salaryRangeMin  Decimal?      // Used when salaryType is RANGE
-    salaryRangeMax  Decimal?      // Used when salaryType is RANGE
+    exactSalary     Int?      // Used when salaryType is EXACT
+    salaryRangeMin  Int?      // Used when salaryType is RANGE
+    salaryRangeMax  Int?      // Used when salaryType is RANGE
 
     // Additional metadata
     isAnonymous     Boolean       @default(false)
@@ -117,6 +117,7 @@ model Review {
     interviewProcess    String?   // Description of interview process
     applicationDate     DateTime?  // When they applied
 
+    slug             String  @unique //nanoid(8) generated for something like /Review/[slug]
     @@index([companyId])
     @@index([contractType])
 }
@@ -129,4 +130,6 @@ model Comment {
     review    Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
     userId    String   @map("user_id")
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    anonymous Boolean  @default(false)
+    likes    Int      @default(0)
 }

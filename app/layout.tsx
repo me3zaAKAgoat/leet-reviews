@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
-
+import Script from "next/script";
 // const geistSans = localFont({
 //   src: "./fonts/GeistVF.woff",
 //   variable: "--font-geist-sans",
@@ -44,6 +44,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
+      {/* <Script src="https://unpkg.com/react-scan/dist/auto.global.js"></Script> */}
       <body
         className={cn(
           `antialiased flex flex-col min-h-screen`,

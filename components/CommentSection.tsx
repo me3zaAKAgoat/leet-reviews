@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -16,6 +16,7 @@ import { useSession } from "next-auth/react";
 import { cn, generateAnonymousId } from "@/lib/utils";
 import UserAvatar from "./UserAvatar";
 import cuid from "cuid";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
 
 TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo("en-US");
@@ -58,6 +59,7 @@ export default function CommentSection({
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [loadingLikes, setLoadingLikes] = useState<Set<string>>(new Set());
+  const [animationParent] = useAutoAnimate({ duration: 500 });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -180,7 +182,7 @@ export default function CommentSection({
           </Button>
         </div>
       </form>
-      <ScrollArea className="h-[600px] pr-4">
+      <div className="h-[600px] pr-4" ref={animationParent}>
         {comments.map((comment, index) => {
           const hasLiked = comment.commentLikes.length > 0;
           return (
@@ -232,7 +234,7 @@ export default function CommentSection({
             </div>
           );
         })}
-      </ScrollArea>
+      </div>
     </div>
   );
 }

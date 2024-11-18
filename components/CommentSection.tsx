@@ -1,19 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ThumbsUp, User } from "lucide-react";
+import { LoaderCircle, ThumbsUp, User } from "lucide-react";
 import { CommentWithUser } from "@/lib/types";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
 import { useSession } from "next-auth/react";
-import { cn } from "@/lib/utils";
+import { cn, generateAnonymousId } from "@/lib/utils";
+import UserAvatar from "./UserAvatar";
+import cuid from "cuid";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+
 TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo("en-US");
 
@@ -50,15 +53,18 @@ export default function CommentSection({
   reviewComments: CommentWithUser[];
 }) {
   const { data: session } = useSession();
-  console.log(session);
   const [comments, setComments] = useState<CommentWithUser[]>(reviewComments);
   const [newComment, setNewComment] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isLoading, setLoading] = useState(false);
+  const [loadingLikes, setLoadingLikes] = useState<Set<string>>(new Set());
+  const [animationParent] = useAutoAnimate({ duration: 500 });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newComment.trim()) {
+      const new_cuid = cuid();
+      console.log(new_cuid);
       setLoading(true);
       // oone day , ill try to use the new hook useOptimistic here .that day will never come
       const comment: CommentWithUser = {
@@ -70,15 +76,17 @@ export default function CommentSection({
           image: session?.user?.image || "image",
         },
         comment: newComment.trim(),
-        id: String(comments.length + 1),
+        id: new_cuid,
         createdAt: new Date(),
         anonymous: isAnonymous,
         likes: 0,
+        commentLikes: [],
       };
       const res = await fetch("/api/addComment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: new_cuid,
           comment: newComment,
           reviewId: reviewId,
           anonymous: isAnonymous,
@@ -95,14 +103,49 @@ export default function CommentSection({
     }
   };
 
-  const handleLike = (id: string) => {
-    setComments(
-      comments.map((comment) =>
-        comment.id === id ? { ...comment, likes: comment.likes + 1 } : comment,
-      ),
-    );
-  };
+  const handleLike = async (id: string) => {
+    setLoadingLikes((prev) => new Set(prev).add(id));
+    try {
+      const res = await fetch("/api/updateComment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          commentId: id,
+          action: "LIKE",
+        }),
+      });
 
+      if (!res.ok) {
+        const error = await res.json();
+        console.error("Failed to like comment:", error.error);
+        setLoadingLikes((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(id);
+          return newSet;
+        });
+      }
+
+      setComments(
+        comments.map((comment) =>
+          comment.id === id
+            ? {
+                ...comment,
+                likes: comment.likes + 1,
+                commentLikes: [...comment.commentLikes, { commentId: id }],
+              }
+            : comment,
+        ),
+      );
+    } catch (err) {
+      console.log("error while liking comment", err);
+    } finally {
+      setLoadingLikes((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
+    }
+  };
   return (
     <div className="w-full max-w-3xl mx-auto p-6 bg-background rounded-xl shadow-lg">
       <h2 className="text-3xl font-bold mb-8 text-center">Comments</h2>
@@ -129,7 +172,6 @@ export default function CommentSection({
               isLoading ? "cursor-not-allowed opacity-70" : ""
             }`}
           >
-            {/* {isLoading ? <LoadingSpinner /> : "Post Comment"} */}
             <span className={isLoading ? "invisible" : ""}>Post Comment</span>
             {isLoading && (
               <span className="absolute inset-0 grid place-items-center ">
@@ -139,53 +181,59 @@ export default function CommentSection({
           </Button>
         </div>
       </form>
-      <ScrollArea className="h-[600px] pr-4">
-        {comments.map((comment, index) => (
-          <div key={comment.id}>
-            <div className="flex items-start space-x-4 mb-4">
-              {comment.user ? (
-                <Avatar className="w-12 h-12 border-2 border-primary">
-                  {/* //fix this later */}
-                  <AvatarImage
-                    src={comment.user.image || "default url"}
-                    alt={comment.user.name || "Profile Pic"}
-                  />
-                  <AvatarFallback>
-                    {comment.user.name?.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-              ) : (
-                <Avatar className="w-12 h-12 border-2 border-primary">
-                  <AvatarFallback>
-                    <User className="w-6 h-6" />
-                  </AvatarFallback>
-                </Avatar>
-              )}
-              <div className="flex-1 space-y-2">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">
-                    {comment.user ? comment.user.name : "Anonymous User"}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {timeAgo.format(comment.createdAt)}
+      <div className="h-[600px] pr-4" ref={animationParent}>
+        {comments.map((comment, index) => {
+          const hasLiked = comment.commentLikes.length > 0;
+          return (
+            <div key={comment.id}>
+              <div className="flex items-start space-x-4 mb-4">
+                {comment.user ? (
+                  <UserAvatar comment={comment} />
+                ) : (
+                  <Avatar className="w-12 h-12 border-2 border-primary">
+                    <AvatarFallback>
+                      <User className="w-6 h-6" />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">
+                      {!comment.anonymous
+                        ? comment.user.name
+                        : generateAnonymousId(session?.user?.id)}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {timeAgo.format(comment.createdAt)}
+                    </p>
+                  </div>
+                  <p className="text-base text-foreground ">
+                    {comment.comment}
                   </p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    cursor-not-allowed
+                    className={`text-muted-foreground hover:text-primary`}
+                    disabled={loadingLikes.has(comment.id) || hasLiked}
+                    onClick={() => handleLike(comment.id)}
+                  >
+                    {loadingLikes.has(comment.id) ? (
+                      <LoaderCircle className={`animate-spin w-4 h-4 mr-1 `} />
+                    ) : (
+                      <ThumbsUp
+                        className={`w-4 h-4 mr-1 ${loadingLikes.has(comment.id) || hasLiked ? "text-primary" : ""}`}
+                      />
+                    )}
+                    <span>{comment.likes}</span>
+                  </Button>
                 </div>
-                <p className="text-base text-foreground">{comment.comment}</p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-primary"
-                  onClick={() => handleLike(comment.id)}
-                >
-                  <ThumbsUp className="w-4 h-4 mr-1" />
-                  <span>{comment.likes}</span>
-                </Button>
               </div>
+              {index < comments.length - 1 && <Separator className="my-6" />}
             </div>
-            {index < comments.length - 1 && <Separator className="my-6" />}
-          </div>
-        ))}
-      </ScrollArea>
+          );
+        })}
+      </div>
     </div>
   );
 }

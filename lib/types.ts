@@ -3,6 +3,7 @@ import type * as Prisma from "@prisma/client";
 
 // Define the form schema using Zod
 export const commentSchema = z.object({
+  id: z.string().cuid(),
   comment: z
     .string()
     .min(2, { message: "Comment should be at least 2 characters!" }),
@@ -79,5 +80,17 @@ export type CommentWithUser = Prisma.Prisma.CommentGetPayload<{
         image: true;
       };
     };
+    commentLikes: {
+      select: {
+        commentId: true;
+      };
+    };
   };
 }>;
+
+export const CommentUpdate = z.object({
+  commentId: z.string().cuid(),
+  action: z.enum(["LIKE"]), // later we may add DISLIKE , UPDATE(to update a comment) , DELETE
+});
+
+export type CommentUpdateType = z.infer<typeof CommentUpdate>;

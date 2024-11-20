@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 // import Script from "next/script";
 // const geistSans = localFont({
 //   src: "./fonts/GeistVF.woff",
@@ -52,7 +53,9 @@ export default async function RootLayout({
           fontBody.variable,
         )}
       >
-        <SessionProvider session={session}>{children}</SessionProvider>
+        <NuqsAdapter>
+          <SessionProvider session={session}>{children}</SessionProvider>
+        </NuqsAdapter>
       </body>
     </html>
   );

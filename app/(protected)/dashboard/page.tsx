@@ -46,12 +46,6 @@ const QueryParamsSchema = z.object({
       })
       .optional(),
   ),
-  // salaryRange: z
-  //   .tuple([z.number().min(0).max(100000), z.number().min(0).max(100000)])
-  //   .refine(([min, max]) => min <= max, {
-  //     message: "Minimum salary must be less than or equal to maximum salary",
-  //   })
-  //   .optional(),
   rating: z.coerce
     .number({ errorMap: () => ({ message: "Invalid Rating Range" }) })
     .min(0)
@@ -66,7 +60,6 @@ export default async function Dashboard({
 }: {
   searchParams: Record<string, string | string[]>;
 }) {
-  console.log(searchParams.salaryRange);
   const validatedParams = QueryParamsSchema.safeParse({
     company: searchParams.company,
     contractType: searchParams.contractType,

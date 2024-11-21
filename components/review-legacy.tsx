@@ -11,13 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
 import { ReviewWithCompany } from "@/lib/types";
 import {
   Building2,
   ChevronLeft,
   ChevronRight,
   DollarSign,
+  LoaderCircle,
   Star,
 } from "lucide-react";
 import {
@@ -85,6 +85,13 @@ export default function ReviewLegacy({
     setSelectedRating(rating === selectedRating ? 0 : rating);
   };
 
+  const handleReset = () => {
+    setCompany("");
+    setContractType("");
+    setJobSource("");
+    setSalaryRange([0, 10000]);
+    setSelectedRating(0);
+  };
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Internship Reviews</h1>
@@ -92,7 +99,10 @@ export default function ReviewLegacy({
         <aside className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Filters</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                Filters
+                {isLoading && <LoaderCircle className="size-4 animate-spin" />}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -186,12 +196,13 @@ export default function ReviewLegacy({
                   ))}
                 </div>
               </div>
-              <Button className="w-full">Apply Filters</Button>
+              <Button className="w-full" onClick={handleReset}>
+                Reset
+              </Button>
             </CardContent>
           </Card>
         </aside>
         <main className="space-y-6">
-          {isLoading && <p>loading...</p>}
           {/* {isLoading && (
                   // <SkeletonReview />
               <Card key={1}>

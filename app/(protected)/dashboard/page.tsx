@@ -51,6 +51,7 @@ const QueryParamsSchema = z.object({
     .min(0)
     .max(5)
     .optional(),
+  sort: z.enum(["Recent", "Oldest"], { message: "Invalid Sort" }).optional(),
 });
 
 // type TQueryParams = z.infer<typeof QueryParamsSchema>;
@@ -66,6 +67,7 @@ export default async function Dashboard({
     jobSource: searchParams.jobSource,
     salaryRange: searchParams.salaryRange,
     rating: searchParams.rating,
+    sort: searchParams.sort,
   });
 
   if (!validatedParams.success) {
@@ -122,7 +124,7 @@ export default async function Dashboard({
       company: true,
     },
     orderBy: {
-      createdAt: "desc",
+      createdAt: validatedParams.data.sort === "Oldest" ? "asc" : "desc",
     },
   });
   // console.log(data);

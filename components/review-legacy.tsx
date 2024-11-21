@@ -29,6 +29,8 @@ import {
 import { useTransition } from "react";
 import { formatSalary } from "./ReviewShowCase";
 import { DualRangeSlider } from "./ui/dual-range-slider";
+import { FancySwitch } from "@omit/react-fancy-switch";
+import { cn } from "@/lib/utils";
 // import { SkeletonReview } from "./SkeletonReview";
 // import { Skeleton, SVGSkeleton } from "./ui/Skeleton";
 
@@ -80,6 +82,12 @@ export default function ReviewLegacy({
       .withOptions({ shallow: false, startTransition }),
   );
 
+  const [selectedOption, setSelectedOption] = useQueryState(
+    "sort",
+    parseAsString
+      .withDefault("Recent")
+      .withOptions({ shallow: false, startTransition }),
+  );
   const handleRatingClick = (rating: number) => {
     // If clicking the same rating, reset to 0 (diselect)
     setSelectedRating(rating === selectedRating ? 0 : rating);
@@ -92,6 +100,8 @@ export default function ReviewLegacy({
     setSalaryRange([0, 10000]);
     setSelectedRating(0);
   };
+
+  const options = ["Recent", "Oldest"];
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Internship Reviews</h1>
@@ -196,6 +206,22 @@ export default function ReviewLegacy({
                   ))}
                 </div>
               </div>
+              <FancySwitch
+                options={options}
+                value={selectedOption}
+                onChange={setSelectedOption}
+                className="flex rounded-full bg-muted p-2"
+                highlighterClassName="bg-primary rounded-full"
+                aria-label="Order type"
+                radioClassName={cn(
+                  "relative flex h-7 cursor-pointer items-center justify-center",
+                  "flex-1 px-4 text-sm font-medium transition-colors",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                  "data-[checked]:text-primary-foreground",
+                  "data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50",
+                )}
+                highlighterIncludeMargin={true}
+              />
               <Button className="w-full" onClick={handleReset}>
                 Reset
               </Button>

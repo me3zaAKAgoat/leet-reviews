@@ -28,6 +28,9 @@ import {
 } from "nuqs";
 import { useTransition } from "react";
 import { formatSalary } from "./ReviewShowCase";
+import { DualRangeSlider } from "./ui/dual-range-slider";
+// import { SkeletonReview } from "./SkeletonReview";
+// import { Skeleton, SVGSkeleton } from "./ui/Skeleton";
 
 const renderRatingStars = (rating: number) => {
   return Array(5)
@@ -76,6 +79,11 @@ export default function ReviewLegacy({
       .withDefault(0)
       .withOptions({ shallow: false, startTransition }),
   );
+
+  const handleRatingClick = (rating: number) => {
+    // If clicking the same rating, reset to 0 (diselect)
+    setSelectedRating(rating === selectedRating ? 0 : rating);
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -139,13 +147,14 @@ export default function ReviewLegacy({
               </div>
               <div className="space-y-2">
                 <Label>Salary Range</Label>
-                <div className="px-2">
-                  <Slider
+                <div className="px-2 ">
+                  <DualRangeSlider
+                    // label={(salaryRange) => salaryRange}
                     value={salaryRange}
                     onValueChange={setSalaryRange}
+                    min={0}
                     max={10000}
                     step={100}
-                    className="mt-2"
                   />
                 </div>
                 <div className="flex justify-between text-xs text-muted-foreground">
@@ -162,7 +171,9 @@ export default function ReviewLegacy({
                       variant="ghost"
                       size="lg"
                       className="p-0 hover:bg-transparent"
-                      onClick={() => setSelectedRating(rating)}
+                      onClick={() => {
+                        setSelectedRating(rating), handleRatingClick(rating);
+                      }}
                     >
                       <Star
                         className={`w-12 h-12 ${
@@ -180,7 +191,44 @@ export default function ReviewLegacy({
           </Card>
         </aside>
         <main className="space-y-6">
-          {isLoading && <p>Loading...</p>}
+          {isLoading && <p>loading...</p>}
+          {/* {isLoading && (
+                  // <SkeletonReview />
+              <Card key={1}>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-4">
+                    <SVGSkeleton className="w-[48px] h-[48px]" />
+                  <div>
+                    <h2 className="text-2xl font-semibold">
+                    <Skeleton className="w-[56px] max-w-full" />
+
+                    </h2>
+                    <Skeleton className="w-[100px] max-w-full" />
+                  </div>
+                </div>
+                <div className="mt-4 flex items-center space-x-2">
+                  <SVGSkeleton className="text-orange-200 fill-orange-200 w-[24px] h-[24px]" />
+                </div>
+                <div className="mt-4 flex items-center space-x-4 text-sm text-muted-foreground">
+                  <Skeleton className="w-[80px] max-w-full" />
+                  <Skeleton className="w-[64px] max-w-full" />
+                  <span className="flex items-center">
+                    <Skeleton className="w-[100px] max-w-full" />
+                  </span>
+                </div>
+                <p className="mt-4">
+                  <Skeleton className="w-[488px] max-w-full" />
+                  <Skeleton className="w-[488px] max-w-full" />
+                </p>
+              </CardContent>
+            </Card>
+          )}  */}
+
+          {reviews.length === 0 && (
+            <p className="flex items-center justify-center mb-1">
+              No review found
+            </p>
+          )}
           {reviews.map((review, key) => (
             <Card key={key}>
               <CardContent className="p-6">
@@ -197,8 +245,8 @@ export default function ReviewLegacy({
                   {renderRatingStars(review.rating)}
                 </div>
                 <div className="mt-4 flex items-center space-x-4 text-sm text-muted-foreground">
-                  <span>Internship</span>
-                  <span>LinkedIn</span>
+                  <span>{review.contractType}</span>
+                  <span>{review.jobSource}</span>
                   <span className="flex items-center">
                     <DollarSign className="w-4 h-4 mr-1" />
                     {review.salaryType == "EXACT"

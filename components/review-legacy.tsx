@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -13,22 +12,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { ReviewType, ReviewWithCompany } from "@/lib/types";
+import { ReviewWithCompany } from "@/lib/types";
 import {
   Building2,
-  DollarSign,
-  Star,
   ChevronLeft,
   ChevronRight,
+  DollarSign,
+  Star,
 } from "lucide-react";
-import { useState, useTransition } from "react";
-import { formatSalary } from "./ReviewShowCase";
 import {
   parseAsArrayOf,
   parseAsInteger,
   parseAsString,
   useQueryState,
 } from "nuqs";
+import { useTransition } from "react";
+import { formatSalary } from "./ReviewShowCase";
 
 const renderRatingStars = (rating: number) => {
   return Array(5)
@@ -181,8 +180,9 @@ export default function ReviewLegacy({
           </Card>
         </aside>
         <main className="space-y-6">
-          {reviews.map((review) => (
-            <Card>
+          {isLoading && <p>Loading...</p>}
+          {reviews.map((review, key) => (
+            <Card key={key}>
               <CardContent className="p-6">
                 <div className="flex items-center space-x-4">
                   <Building2 className="w-12 h-12 text-primary" />

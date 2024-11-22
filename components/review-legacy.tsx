@@ -14,11 +14,12 @@ import {
 import { ReviewWithCompany } from "@/lib/types";
 import {
   Building2,
-  ChevronLeft,
-  ChevronRight,
+  // ChevronLeft,
+  // ChevronRight,
   DollarSign,
   LoaderCircle,
   Star,
+  XCircle,
 } from "lucide-react";
 import {
   parseAsArrayOf,
@@ -32,6 +33,8 @@ import { DualRangeSlider } from "./ui/dual-range-slider";
 import { FancySwitch } from "@omit/react-fancy-switch";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
+import { ZodError } from "zod";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 // import { SkeletonReview } from "./SkeletonReview";
 // import { Skeleton, SVGSkeleton } from "./ui/Skeleton";
 
@@ -48,8 +51,10 @@ const renderRatingStars = (rating: number) => {
 
 export default function ReviewLegacy({
   reviews,
+  error,
 }: {
   reviews: ReviewWithCompany[];
+  error: ZodError["issues"];
 }) {
   const [isLoading, startTransition] = useTransition();
   const [company, setCompany] = useQueryState(
@@ -262,8 +267,18 @@ export default function ReviewLegacy({
               </CardContent>
             </Card>
           )}  */}
-
-          {reviews.length === 0 && (
+          {error.length > 0 && (
+            <Alert variant="default">
+              <XCircle className="h-4 w-4" />
+              <AlertTitle>Invalid Sort Parameter</AlertTitle>
+              {error.map((err, key) => (
+                <AlertDescription key={key} className="mt-2">
+                  {err.message}
+                </AlertDescription>
+              ))}
+            </Alert>
+          )}
+          {!error.length && reviews.length === 0 && (
             <p className="flex items-center justify-center mb-1">
               No review found
             </p>

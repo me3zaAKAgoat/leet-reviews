@@ -71,8 +71,9 @@ export default async function Dashboard({
   });
 
   if (!validatedParams.success) {
-    console.log(validatedParams.error);
-    return <pre>{JSON.stringify(validatedParams.error)}</pre>;
+    // console.log(validatedParams.error.issues);
+    // return <pre>{JSON.stringify(validatedParams.error)}</pre>;
+    return <ReviewLegacy reviews={[]} error={validatedParams.error.issues} />;
   }
   console.log(validatedParams.data);
 
@@ -131,7 +132,7 @@ export default async function Dashboard({
   // get the reviews from db since we are on the server and pass them to the Reviews component
   return (
     <>
-      <ReviewLegacy reviews={data} />
+      <ReviewLegacy reviews={data} error={[]} />
     </>
   );
 }

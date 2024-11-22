@@ -102,7 +102,7 @@ function Calendar({
           const Icon = orientation === "left" ? ChevronLeft : ChevronRight;
           return <Icon className="h-4 w-4" />;
         },
-        Nav: ({ className, children, ...props }) => {
+        Nav: ({ className, ...props }) => {
           const { nextMonth, previousMonth, goToMonth } = useDayPicker();
 
           const isPreviousDisabled = (() => {

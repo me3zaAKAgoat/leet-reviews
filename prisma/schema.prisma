@@ -87,7 +87,7 @@ model Company {
 
 model Review {
   id          String    @id @default(cuid())
-  description String?
+  description String
   companyId   String    @map("company_id")
   company     Company   @relation(fields: [companyId], references: [id])
   jobTitle    String

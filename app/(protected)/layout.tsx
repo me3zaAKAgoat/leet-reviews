@@ -28,16 +28,15 @@ export default async function Layout({
     <>
       <header className="flex items-center justify-between p-4">
         <Link href="/">
-          <Image src="/logo.png" width={24} height={24} alt="home" />
+          {/* <Image src="/logo.png" width={24} height={24} alt="home" /> */}
+          <h1 className="scroll-m-20 text-2xl font-semibold tracking-tight">
+            {" "}
+            Leet Reviews
+          </h1>
         </Link>
         <div className="flex items-center gap-4">
           <Toaster />
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="font-bold">Add A Review</Button>
-            </DialogTrigger>
-            <ReviewModalComponent />
-          </Dialog>
+          <ReviewModalComponent />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar>

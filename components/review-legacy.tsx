@@ -105,6 +105,7 @@ export default function ReviewLegacy({
     setJobSource("");
     setSalaryRange([0, 10000]);
     setSelectedRating(0);
+    setSelectedOption("Recent");
   };
 
   const options = ["Recent", "Oldest"];
@@ -288,7 +289,7 @@ export default function ReviewLegacy({
               <Link
                 href={`/review/${review.slug}`}
                 key={key}
-                target="_blank"
+                // target="_blank"
                 prefetch={true}
               >
                 <CardContent className="p-6">

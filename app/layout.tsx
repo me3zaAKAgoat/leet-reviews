@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
+
 // import Script from "next/script";
 // const geistSans = localFont({
 //   src: "./fonts/GeistVF.woff",

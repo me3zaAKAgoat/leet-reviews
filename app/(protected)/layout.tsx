@@ -26,8 +26,6 @@ export default async function Layout({
   let hasError = false;
   try {
     companies = await prisma.company.findMany();
-    //@ts-ignore
-    companies = await prisma.company.invalidMethod();
   } catch (e) {
     hasError = true;
     console.error(e);

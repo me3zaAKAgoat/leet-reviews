@@ -139,11 +139,7 @@ export default function ReviewShowCase({
 
         <div>
           <h3 className="font-semibold mb-2 text-lg">Review</h3>
-          <p className="text-sm leading-relaxed">
-            {reviewData.description.length > 50
-              ? `${reviewData.description.substring(0, 50)}...`
-              : reviewData.description}
-          </p>
+          <p className="text-sm leading-relaxed">{reviewData.description}</p>
         </div>
 
         <div className="text-xs text-muted-foreground space-y-1">

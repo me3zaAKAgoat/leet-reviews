@@ -75,7 +75,7 @@ export default async function Dashboard({
     // return <pre>{JSON.stringify(validatedParams.error)}</pre>;
     return <ReviewLegacy reviews={[]} error={validatedParams.error.issues} />;
   }
-  console.log(validatedParams.data);
+  // console.log(validatedParams.data);
 
   const data = await prisma.review.findMany({
     where: {

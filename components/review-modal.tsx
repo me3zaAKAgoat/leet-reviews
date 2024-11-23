@@ -35,9 +35,14 @@ import { ComboboxDemoComponent } from "./combobox-demo";
 import { useEffect, useState } from "react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
-export function ReviewModalComponent() {
+export function ReviewModalComponent({
+  companies,
+  hasError,
+}: {
+  companies: CompanyType[];
+  hasError: boolean;
+}) {
   const [open, setOpen] = useState(false);
-  const [companies, setCompanies] = useState<CompanyType[]>([]);
   const {
     register,
     control,
@@ -85,9 +90,9 @@ export function ReviewModalComponent() {
   };
 
   useEffect(() => {
-    fetch("/api/getCompanies")
-      .then((res) => res.json())
-      .then((data) => setCompanies(data));
+    if (hasError) {
+      toast.error("Failed to fetch companies , Please try again later");
+    }
   }, []);
 
   return (

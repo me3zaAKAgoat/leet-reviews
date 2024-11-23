@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +16,7 @@ import { cn, generateAnonymousId } from "@/lib/utils";
 import UserAvatar from "./UserAvatar";
 import cuid from "cuid";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { type Session } from "next-auth";
 
 TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo("en-US");
@@ -45,142 +46,23 @@ const LoadingSpinner = ({ size = 36, className, ...props }: ISVGProps) => {
   );
 };
 
-export default function CommentSection({
-  reviewId,
-  reviewComments,
-}: {
-  reviewId: string;
-  reviewComments: CommentWithUser[];
-}) {
-  const { data: session } = useSession();
-  const [comments, setComments] = useState<CommentWithUser[]>(reviewComments);
-  const [newComment, setNewComment] = useState("");
-  const [isAnonymous, setIsAnonymous] = useState(false);
-  const [isLoading, setLoading] = useState(false);
-  const [loadingLikes, setLoadingLikes] = useState<Set<string>>(new Set());
-  const [animationParent] = useAutoAnimate({ duration: 500 });
+const CommentList = memo(
+  ({
+    comments,
+    handleLike,
+    loadingLikes,
+    session,
+  }: {
+    comments: CommentWithUser[];
+    handleLike: (id: string) => void;
+    loadingLikes: Set<string>;
+    session: Session | null;
+  }) => {
+    const [animationParent] = useAutoAnimate({ duration: 500 });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newComment.trim()) {
-      const new_cuid = cuid();
-      console.log(new_cuid);
-      setLoading(true);
-      // oone day , ill try to use the new hook useOptimistic here .that day will never come
-      const comment: CommentWithUser = {
-        // this is ugly , lets keep it a secret
-        userId: "1", // we do alittle bit of trolling
-        reviewId: reviewId, // also here
-        user: {
-          name: session?.user?.name || "Current User",
-          image: session?.user?.image || "image",
-        },
-        comment: newComment.trim(),
-        id: new_cuid,
-        createdAt: new Date(),
-        anonymous: isAnonymous,
-        likes: 0,
-        commentLikes: [],
-      };
-      const res = await fetch("/api/addComment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: new_cuid,
-          comment: newComment,
-          reviewId: reviewId,
-          anonymous: isAnonymous,
-        }),
-      });
-      if (!res.ok) {
-        console.error("Failed to add comment:", res.statusText);
-        setLoading(false);
-        return;
-      }
-      setComments([comment, ...comments]);
-      setNewComment("");
-      setLoading(false);
-    }
-  };
+    console.log("inside Memo");
 
-  const handleLike = async (id: string) => {
-    setLoadingLikes((prev) => new Set(prev).add(id));
-    try {
-      const res = await fetch("/api/updateComment", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          commentId: id,
-          action: "LIKE",
-        }),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        console.error("Failed to like comment:", error.error);
-        setLoadingLikes((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(id);
-          return newSet;
-        });
-      }
-
-      setComments(
-        comments.map((comment) =>
-          comment.id === id
-            ? {
-                ...comment,
-                likes: comment.likes + 1,
-                commentLikes: [...comment.commentLikes, { commentId: id }],
-              }
-            : comment,
-        ),
-      );
-    } catch (err) {
-      console.log("error while liking comment", err);
-    } finally {
-      setLoadingLikes((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(id);
-        return newSet;
-      });
-    }
-  };
-  return (
-    <div className="w-full max-w-3xl mx-auto p-6 bg-background rounded-xl shadow-lg">
-      <h2 className="text-3xl font-bold mb-8 text-center">Comments</h2>
-      <form onSubmit={handleSubmit} className="mb-10">
-        <Textarea
-          placeholder="What are your thoughts?"
-          value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          className="w-full mb-4 p-4 border-2 border-primary/20 rounded-lg focus:border-primary transition-colors"
-          rows={4}
-        />
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="anonymous-mode"
-              checked={isAnonymous}
-              onCheckedChange={setIsAnonymous}
-            />
-            <Label htmlFor="anonymous-mode">Post anonymously</Label>
-          </div>
-          <Button
-            type="submit"
-            className={`px-3 py-2 text-md font-semibold rounded-lg relative ${
-              isLoading ? "cursor-not-allowed opacity-70" : ""
-            }`}
-          >
-            <span className={isLoading ? "invisible" : ""}>Post Comment</span>
-            {isLoading && (
-              <span className="absolute inset-0 grid place-items-center ">
-                <LoadingSpinner />
-              </span>
-            )}
-          </Button>
-        </div>
-      </form>
+    return (
       <div className="h-[600px] pr-4" ref={animationParent}>
         {comments.map((comment, index) => {
           const hasLiked = comment.commentLikes.length > 0;
@@ -234,6 +116,154 @@ export default function CommentSection({
           );
         })}
       </div>
+    );
+  },
+);
+
+export default function CommentSection({
+  reviewId,
+  reviewComments,
+}: {
+  reviewId: string;
+  reviewComments: CommentWithUser[];
+}) {
+  const { data: session } = useSession();
+  const [comments, setComments] = useState<CommentWithUser[]>(reviewComments);
+  const [newComment, setNewComment] = useState("");
+  const [isAnonymous, setIsAnonymous] = useState(false);
+  const [isLoading, setLoading] = useState(false);
+  const [loadingLikes, setLoadingLikes] = useState<Set<string>>(new Set());
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newComment.trim()) {
+      const new_cuid = cuid();
+      console.log(new_cuid);
+      setLoading(true);
+      // oone day , ill try to use the new hook useOptimistic here .that day will never come
+      const comment: CommentWithUser = {
+        // this is ugly , lets keep it a secret
+        userId: "1", // we do alittle bit of trolling
+        reviewId: reviewId, // also here
+        user: {
+          name: session?.user?.name || "Current User",
+          image: session?.user?.image || "image",
+        },
+        comment: newComment.trim(),
+        id: new_cuid,
+        createdAt: new Date(),
+        anonymous: isAnonymous,
+        likes: 0,
+        commentLikes: [],
+      };
+      const res = await fetch("/api/addComment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: new_cuid,
+          comment: newComment,
+          reviewId: reviewId,
+          anonymous: isAnonymous,
+        }),
+      });
+      if (!res.ok) {
+        console.error("Failed to add comment:", res.statusText);
+        setLoading(false);
+        return;
+      }
+      setComments([comment, ...comments]);
+      setNewComment("");
+      setLoading(false);
+    }
+  };
+
+  const handleLike = useCallback(async (id: string) => {
+    setLoadingLikes((prev) => new Set(prev).add(id));
+    try {
+      const res = await fetch("/api/updateComment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          commentId: id,
+          action: "LIKE",
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        console.error("Failed to like comment:", error.error);
+        setLoadingLikes((prev) => {
+          const newSet = new Set(prev);
+          newSet.delete(id);
+          return newSet;
+        });
+      }
+
+      setComments((prevComments) => {
+        return prevComments.map((comment) => {
+          if (comment.id === id) {
+            return {
+              ...comment,
+              likes: comment.likes + 1,
+              commentLikes: [...comment.commentLikes, { commentId: id }],
+            };
+          }
+          return comment;
+        });
+      });
+    } catch (err) {
+      console.log("error while liking comment", err);
+    } finally {
+      setLoadingLikes((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
+    }
+  }, []);
+  return (
+    <div className="w-full max-w-3xl mx-auto p-6 bg-background rounded-xl shadow-lg">
+      <h2 className="text-3xl font-bold mb-8 text-center">Comments</h2>
+      <form onSubmit={handleSubmit} className="mb-10">
+        <Textarea
+          placeholder="What are your thoughts?"
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          className="w-full mb-4 p-4 border-2 border-primary/20 rounded-lg focus:border-primary transition-colors"
+          rows={4}
+        />
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="anonymous-mode"
+              checked={isAnonymous}
+              onCheckedChange={setIsAnonymous}
+            />
+            <Label htmlFor="anonymous-mode">Post anonymously</Label>
+          </div>
+          <Button
+            type="submit"
+            className={`px-3 py-2 text-md font-semibold rounded-lg relative ${
+              isLoading ? "cursor-not-allowed opacity-70" : ""
+            }`}
+          >
+            <span className={isLoading ? "invisible" : ""}>Post Comment</span>
+            {isLoading && (
+              <span className="absolute inset-0 grid place-items-center ">
+                <LoadingSpinner />
+              </span>
+            )}
+          </Button>
+        </div>
+      </form>
+      <CommentList
+        comments={comments}
+        handleLike={handleLike}
+        loadingLikes={loadingLikes}
+        session={session}
+      />
     </div>
   );
 }
+
+CommentList.displayName = "CommentList";

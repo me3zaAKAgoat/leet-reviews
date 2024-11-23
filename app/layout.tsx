@@ -6,7 +6,7 @@ import { IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
-// import Script from "next/script";
+import Script from "next/script";
 // const geistSans = localFont({
 //   src: "./fonts/GeistVF.woff",
 //   variable: "--font-geist-sans",
@@ -46,7 +46,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      {/* <Script src="https://unpkg.com/react-scan/dist/auto.global.js"></Script> */}
+      <Script src="https://unpkg.com/react-scan/dist/auto.global.js"></Script>
       <body
         className={cn(
           `antialiased flex flex-col min-h-screen`,

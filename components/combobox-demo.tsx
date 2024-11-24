@@ -107,13 +107,6 @@ export function ComboboxDemoComponent({
       );
   }, []);
 
-  React.useEffect(() => {
-    console.log(
-      inputValue,
-      !companies.find((company) => company.label === inputValue),
-    );
-  }, [inputValue]);
-
   return (
     <Controller
       name="companyId"

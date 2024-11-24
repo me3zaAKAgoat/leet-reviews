@@ -32,7 +32,7 @@ import { CalendarIcon, Star } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { ComboboxDemoComponent } from "./combobox-demo";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 export function ReviewModalComponent() {
@@ -55,11 +55,16 @@ export function ReviewModalComponent() {
     },
   });
 
-  const salaryType = watch("salaryType");
+  const [salaryType, setSalaryType] = useState("EXACT");
 
-  // const onError = (errors: any) => {
-  //   console.log(errors);
-  // };
+  useEffect(() => {
+    if (watch("salaryType") === "EXACT") {
+      setSalaryType("EXACT");
+    } else {
+      setSalaryType("RANGE");
+    }
+  }, [watch("salaryType")]);
+
   const onSubmit = async (data: ReviewFormValues) => {
     console.log(data);
     // Handle form submission

@@ -3,7 +3,6 @@ import prisma from "@/lib/prisma";
 import { ReviewFormValues, reviewSchema } from "@/lib/types";
 import { NextResponse } from "next/server";
 import { nanoid } from "nanoid";
-import { revalidatePath } from "next/cache";
 
 export const POST = auth(async function POST(req) {
   if (!req.auth)
@@ -55,6 +54,5 @@ export const POST = auth(async function POST(req) {
     );
   }
 
-  revalidatePath("/dashboard");
   return NextResponse.json({ message: "Review added" });
 });

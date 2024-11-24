@@ -113,7 +113,7 @@ export default function ReviewLegacy({
     <div className="container mx-auto max-w-screen-xl px-4 py-8">
       {/* <div className="max-w-[1024px]  px-4 py-8"> */}
       <h1 className="text-3xl font-bold mb-8">Internship Reviews</h1>
-      <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
+      <div className="flex gap-8">
         <aside className="space-y-6">
           <Card>
             <CardHeader>
@@ -236,7 +236,7 @@ export default function ReviewLegacy({
             </CardContent>
           </Card>
         </aside>
-        <main className="space-y-6">
+        <main className="flex flex-col space-y-8 overflow-hidden w-full">
           {/* {isLoading && (
                   // <SkeletonReview />
               <Card key={1}>
@@ -291,15 +291,18 @@ export default function ReviewLegacy({
                 key={key}
                 // target="_blank"
                 prefetch={true}
+                className="flex flex-col"
               >
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-4">
-                    <Building2 className="w-12 h-12 text-primary" />
-                    <div>
-                      <h2 className="text-2xl font-semibold">
+                    <Building2 className="min-w-12 min-h-12 text-primary" />
+                    <div className="max-w-full">
+                      <h2 className="text-2xl font-semibold max-w-full">
                         {review.company.name}
                       </h2>
-                      <p className="text-muted-foreground">{review.jobTitle}</p>
+                      <p className="text-muted-foreground overflow-auto max-h-14">
+                        {review.jobTitle}
+                      </p>
                     </div>
                   </div>
                   <div className="mt-4 flex items-center space-x-2">
@@ -318,7 +321,7 @@ export default function ReviewLegacy({
                           )}
                     </span>
                   </div>
-                  <p className="mt-4">
+                  <p className="overflow-ellipsis overflow-hidden mt-4">
                     {review.description.length > 200
                       ? `${review.description.substring(0, 200)}...`
                       : review.description}

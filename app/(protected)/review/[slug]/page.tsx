@@ -63,6 +63,12 @@ export default async function ReviewShowcase({
     }
     return comment;
   });
+  if (reviewData.isAnonymous) {
+    reviewData.user = {
+      name: generateAnonymousId(reviewData.userId),
+      image: "",
+    };
+  }
   console.log(reviewData.comments);
   return (
     <>

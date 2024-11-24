@@ -24,7 +24,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { CompanyType, ReviewFormValues, reviewSchema } from "@/lib/types";
+import { ReviewFormValues, reviewSchema } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -32,12 +32,11 @@ import { CalendarIcon, Star } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { ComboboxDemoComponent } from "./combobox-demo";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
 export function ReviewModalComponent() {
   const [open, setOpen] = useState(false);
-  const [companies, setCompanies] = useState<CompanyType[]>([]);
   const {
     register,
     control,
@@ -84,12 +83,6 @@ export function ReviewModalComponent() {
     });
   };
 
-  useEffect(() => {
-    fetch("/api/getCompanies")
-      .then((res) => res.json())
-      .then((data) => setCompanies(data));
-  }, []);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -117,7 +110,6 @@ export function ReviewModalComponent() {
             <Label htmlFor="companyId">Company</Label>
 
             <ComboboxDemoComponent
-              companies={companies}
               control={control}
               errors={errors.companyId}
             />

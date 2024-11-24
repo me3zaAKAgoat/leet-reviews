@@ -46,19 +46,20 @@ async function AddCompany(newCompany: string) {
 }
 
 export function ComboboxDemoComponent({
-  companies,
   control,
   errors,
 }: {
-  companies: CompanyType[];
   control: Control<ReviewFormValues>;
   errors: FieldError | undefined;
 }) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
-  const [companies_box, setCompanies_box] = React.useState(
-    companies.map((company) => ({ value: company.id, label: company.name })),
-  );
+  const [companies, setCompanies] = React.useState<
+    {
+      value: string;
+      label: string;
+    }[]
+  >([]);
   const [inputValue, setInputValue] = React.useState("");
 
   const handleSelect = async (
@@ -75,7 +76,7 @@ export function ComboboxDemoComponent({
 
       // should add a modal to check are you sure you want to add this new company
       //handle error tho later
-      setCompanies_box((prevFrameworks) => [...prevFrameworks, newOption]);
+      setCompanies([...companies, newOption]);
       setValue(newOption.value);
       onChange(newOption.value);
     } else {
@@ -92,6 +93,26 @@ export function ComboboxDemoComponent({
       setInputValue("");
     }
   }, [open]);
+
+  React.useEffect(() => {
+    fetch("/api/getCompanies")
+      .then((res) => res.json())
+      .then((data) =>
+        setCompanies(
+          data.map((company: CompanyType) => ({
+            value: company.id,
+            label: company.name,
+          })),
+        ),
+      );
+  }, []);
+
+  React.useEffect(() => {
+    console.log(
+      inputValue,
+      !companies.find((company) => company.label === inputValue),
+    );
+  }, [inputValue]);
 
   return (
     <Controller
@@ -110,8 +131,7 @@ export function ComboboxDemoComponent({
               )}
             >
               {value
-                ? companies_box.find((framework) => framework.value === value)
-                    ?.label
+                ? companies.find((company) => company.value === value)?.label
                 : "Select Company..."}
               <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
@@ -126,39 +146,44 @@ export function ComboboxDemoComponent({
               />
               <CommandList>
                 <CommandGroup>
-                  {companies_box.map((framework) => (
+                  {companies.map((company) => (
                     <CommandItem
-                      key={framework.value}
-                      value={framework.value}
+                      key={company.value}
+                      value={company.value}
                       onSelect={(value) => {
                         handleSelect(value, field.onChange);
                       }}
                     >
-                      {framework.label}
+                      {company.label}
                       <CheckIcon
                         className={cn(
                           "ml-auto h-4 w-4",
-                          value === framework.value
-                            ? "opacity-100"
-                            : "opacity-0",
+                          value === company.value ? "opacity-100" : "opacity-0",
                         )}
                       />
                     </CommandItem>
                   ))}
                 </CommandGroup>
-                {inputValue &&
-                  !companies_box.some(
-                    (f) => f.label.toLowerCase() === inputValue.toLowerCase(),
-                  ) && (
-                    <CommandItem
-                      onSelect={() => {
-                        handleSelect(`new:${inputValue}`, field.onChange);
-                      }}
-                    >
-                      <PlusIcon className="mr-2 h-4 w-4" />
-                      Create &quot;{inputValue}&quot;
-                    </CommandItem>
-                  )}
+                <CommandItem
+                  onSelect={() => {
+                    handleSelect(`new:${inputValue}`, field.onChange);
+                  }}
+                  disabled={
+                    !(
+                      !!inputValue &&
+                      !companies.find((company) => company.label === inputValue)
+                    )
+                  }
+                  className={`${
+                    !!inputValue &&
+                    !companies.find((company) => company.label === inputValue)
+                      ? ""
+                      : "hidden"
+                  }`}
+                >
+                  <PlusIcon className="mr-2 h-4 w-4" />
+                  Create &quot;{inputValue}&quot;
+                </CommandItem>
               </CommandList>
             </Command>
           </PopoverContent>

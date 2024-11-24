@@ -3,6 +3,7 @@ import ReviewNotFound from "@/components/ReviewNotFound";
 import ReviewShowCase from "@/components/ReviewShowCase";
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { generateAnonymousId } from "@/lib/utils";
 
 export default async function ReviewShowcase({
   params,
@@ -16,6 +17,12 @@ export default async function ReviewShowcase({
       slug: slug,
     },
     include: {
+      user: {
+        select: {
+          name: true,
+          image: true,
+        },
+      },
       company: true,
       comments: {
         orderBy: {
@@ -24,6 +31,7 @@ export default async function ReviewShowcase({
         include: {
           user: {
             select: {
+              id: true,
               name: true,
               image: true,
             },
@@ -44,9 +52,18 @@ export default async function ReviewShowcase({
   if (!reviewData) {
     return <ReviewNotFound reviewId={slug} />;
   }
-  // console.log(reviewData);
-  // reviewData.comments.commentLikes is an array exists for each comment if the user has liked the comment then array size > 0
-  // console.log(reviewData.comments);
+  // Sanitize comments to remove user data for anonymous comments
+  reviewData.comments = reviewData.comments.map((comment) => {
+    if (comment.anonymous) {
+      comment.user = {
+        id: comment.user.id, // this will leak the user id , but its fine
+        name: generateAnonymousId(comment.user.id),
+        image: "",
+      };
+    }
+    return comment;
+  });
+  console.log(reviewData.comments);
   return (
     <>
       <ReviewShowCase reviewData={reviewData} />

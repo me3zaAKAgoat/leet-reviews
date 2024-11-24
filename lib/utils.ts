@@ -8,6 +8,7 @@ export function cn(...inputs: ClassValue[]) {
 type AnonymousIdentifier = `Anonymous#${string}`;
 
 // take a wild guess who wrote this ?
+// very poor security btw
 export function generateAnonymousId(
   userId: string | undefined,
 ): AnonymousIdentifier {

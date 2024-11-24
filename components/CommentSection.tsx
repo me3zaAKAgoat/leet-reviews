@@ -11,12 +11,10 @@ import { LoaderCircle, ThumbsUp, User } from "lucide-react";
 import { CommentWithUser } from "@/lib/types";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
-import { useSession } from "next-auth/react";
-import { cn, generateAnonymousId } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import UserAvatar from "./UserAvatar";
 import cuid from "cuid";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
-import { type Session } from "next-auth";
 
 TimeAgo.addDefaultLocale(en);
 const timeAgo = new TimeAgo("en-US");
@@ -51,12 +49,10 @@ const CommentList = memo(
     comments,
     handleLike,
     loadingLikes,
-    session,
   }: {
     comments: CommentWithUser[];
     handleLike: (id: string) => void;
     loadingLikes: Set<string>;
-    session: Session | null;
   }) => {
     const [animationParent] = useAutoAnimate({ duration: 500 });
 
@@ -81,9 +77,7 @@ const CommentList = memo(
                 <div className="flex-1 space-y-2">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">
-                      {!comment.anonymous
-                        ? comment.user.name
-                        : generateAnonymousId(session?.user?.id)}
+                      {comment.user.name}
                     </h3>
                     <p className="text-sm text-muted-foreground">
                       {timeAgo.format(comment.createdAt)}
@@ -127,7 +121,6 @@ export default function CommentSection({
   reviewId: string;
   reviewComments: CommentWithUser[];
 }) {
-  const { data: session } = useSession();
   const [comments, setComments] = useState<CommentWithUser[]>(reviewComments);
   const [newComment, setNewComment] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -141,21 +134,9 @@ export default function CommentSection({
       console.log(new_cuid);
       setLoading(true);
       // oone day , ill try to use the new hook useOptimistic here .that day will never come
-      const comment: CommentWithUser = {
-        // this is ugly , lets keep it a secret
-        userId: "1", // we do alittle bit of trolling
-        reviewId: reviewId, // also here
-        user: {
-          name: session?.user?.name || "Current User",
-          image: session?.user?.image || "image",
-        },
-        comment: newComment.trim(),
-        id: new_cuid,
-        createdAt: new Date(),
-        anonymous: isAnonymous,
-        likes: 0,
-        commentLikes: [],
-      };
+      // const comment: CommentWithUser = {
+      //   // this is ugly , lets keep it a secret
+      //   userId: "1", // we do alittle bit of trolling
       const res = await fetch("/api/addComment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -171,6 +152,8 @@ export default function CommentSection({
         setLoading(false);
         return;
       }
+      const { comment }: { comment: CommentWithUser } = await res.json();
+      comment.createdAt = new Date(comment.createdAt);
       setComments([comment, ...comments]);
       setNewComment("");
       setLoading(false);
@@ -260,7 +243,6 @@ export default function CommentSection({
         comments={comments}
         handleLike={handleLike}
         loadingLikes={loadingLikes}
-        session={session}
       />
     </div>
   );

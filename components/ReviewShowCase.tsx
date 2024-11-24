@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { ReviewWithCompany } from "@/lib/types";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 export const formatSalary = (min: number, max: number) => {
   return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
@@ -141,6 +142,7 @@ export default function ReviewShowCase({
           <h3 className="font-semibold mb-2 text-lg">Review</h3>
           <p className="text-sm leading-relaxed">{reviewData.description}</p>
         </div>
+        <Separator />
 
         <div className="text-xs text-muted-foreground space-y-1">
           <div className="flex items-center">
@@ -157,6 +159,42 @@ export default function ReviewShowCase({
             </div>
           )}
         </div>
+        {reviewData.isAnonymous ? (
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">
+              Anonymous Review
+            </span>
+            <Badge variant="outline" className="text-xs">
+              Anonymous
+            </Badge>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Avatar className="w-10 h-10">
+                <AvatarImage
+                  src={reviewData?.user?.image ?? ""}
+                  alt={reviewData?.user?.image ?? "User image"}
+                />
+                <AvatarFallback>
+                  {reviewData?.user?.name
+                    ? reviewData.user.name
+                        .split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                    : "NA"}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-sm font-medium">{"Imad Dhaimy"}</p>
+                <p className="text-xs text-muted-foreground">Reviewer</p>
+              </div>
+            </div>
+            {/* <Badge variant="outline" className="text-xs">
+              Verified
+            </Badge> */}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

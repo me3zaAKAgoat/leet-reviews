@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { commentSchema } from "@/lib/types";
+import { commentSchema, CommentWithUser } from "@/lib/types";
+import { generateAnonymousId } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
 type CommentFormValue = {
@@ -23,9 +24,9 @@ export const POST = auth(async function POST(req) {
       { status: 400 },
     );
   }
-
+  let newComment: CommentWithUser = {} as CommentWithUser;
   try {
-    await prisma.comment.create({
+    const newCom = await prisma.comment.create({
       data: {
         id: data.id,
         comment: data.comment,
@@ -34,6 +35,40 @@ export const POST = auth(async function POST(req) {
         anonymous: data.anonymous,
       },
     });
+    const foundComment = await prisma.comment.findUnique({
+      where: {
+        id: newCom.id,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+        commentLikes: {
+          select: {
+            commentId: true,
+          },
+        },
+      },
+    });
+
+    if (!foundComment) {
+      return NextResponse.json(
+        { message: "Comment not found" },
+        { status: 404 },
+      );
+    }
+    if (foundComment.anonymous) {
+      foundComment.user = {
+        id: foundComment.user.id,
+        name: generateAnonymousId(foundComment.user.id),
+        image: "",
+      };
+    }
+    newComment = foundComment;
   } catch (e) {
     console.log(e);
     return NextResponse.json(
@@ -42,8 +77,5 @@ export const POST = auth(async function POST(req) {
     );
   }
 
-  return NextResponse.json(
-    { message: "You want to add a message ?!" },
-    { status: 200 },
-  );
+  return NextResponse.json({ comment: newComment }, { status: 200 });
 });

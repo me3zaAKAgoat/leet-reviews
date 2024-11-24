@@ -39,6 +39,7 @@ export function ReviewModalComponent() {
   const [open, setOpen] = useState(false);
   const {
     register,
+    unregister,
     control,
     handleSubmit,
     watch,
@@ -60,6 +61,8 @@ export function ReviewModalComponent() {
   useEffect(() => {
     if (watch("salaryType") === "EXACT") {
       setSalaryType("EXACT");
+      unregister("salaryMin");
+      unregister("salaryMax");
     } else {
       setSalaryType("RANGE");
     }

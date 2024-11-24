@@ -186,7 +186,7 @@ export default function ReviewShowCase({
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm font-medium">{"Imad Dhaimy"}</p>
+                <p className="text-sm font-medium">{reviewData.user?.name}</p>
                 <p className="text-xs text-muted-foreground">Reviewer</p>
               </div>
             </div>

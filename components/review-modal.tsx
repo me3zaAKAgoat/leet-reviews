@@ -24,7 +24,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { ReviewFormValues, reviewSchema } from "@/lib/types";
+import { CompanyType, ReviewFormValues, reviewSchema } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -130,6 +130,7 @@ export function ReviewModalComponent({
             <Label htmlFor="companyId">Company</Label>
 
             <ComboboxDemoComponent
+              companies={companies}
               control={control}
               errors={errors.companyId}
             />

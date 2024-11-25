@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,8 +11,7 @@ import { LoaderCircle, ThumbsUp, User } from "lucide-react";
 import { CommentWithUser } from "@/lib/types";
 import TimeAgo from "javascript-time-ago";
 import en from "javascript-time-ago/locale/en";
-import { useSession } from "next-auth/react";
-import { cn, generateAnonymousId } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import UserAvatar from "./UserAvatar";
 import cuid from "cuid";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
@@ -45,6 +44,76 @@ const LoadingSpinner = ({ size = 36, className, ...props }: ISVGProps) => {
   );
 };
 
+const CommentList = memo(
+  ({
+    comments,
+    handleLike,
+    loadingLikes,
+  }: {
+    comments: CommentWithUser[];
+    handleLike: (id: string) => void;
+    loadingLikes: Set<string>;
+  }) => {
+    const [animationParent] = useAutoAnimate({ duration: 500 });
+
+    console.log("inside Memo");
+
+    return (
+      <div className="h-[600px] pr-4" ref={animationParent}>
+        {comments.map((comment, index) => {
+          const hasLiked = comment.commentLikes.length > 0;
+          return (
+            <div key={comment.id}>
+              <div className="flex items-start space-x-4 mb-4">
+                {comment.user ? (
+                  <UserAvatar comment={comment} />
+                ) : (
+                  <Avatar className="w-12 h-12 border-2 border-primary">
+                    <AvatarFallback>
+                      <User className="w-6 h-6" />
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">
+                      {comment.user.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {timeAgo.format(comment.createdAt)}
+                    </p>
+                  </div>
+                  <p className="text-base text-foreground ">
+                    {comment.comment}
+                  </p>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    cursor-not-allowed
+                    className={`text-muted-foreground hover:text-primary`}
+                    disabled={loadingLikes.has(comment.id) || hasLiked}
+                    onClick={() => handleLike(comment.id)}
+                  >
+                    {loadingLikes.has(comment.id) ? (
+                      <LoaderCircle className={`animate-spin w-4 h-4 mr-1 `} />
+                    ) : (
+                      <ThumbsUp
+                        className={`w-4 h-4 mr-1 ${loadingLikes.has(comment.id) || hasLiked ? "text-primary" : ""}`}
+                      />
+                    )}
+                    <span>{comment.likes}</span>
+                  </Button>
+                </div>
+              </div>
+              {index < comments.length - 1 && <Separator className="my-6" />}
+            </div>
+          );
+        })}
+      </div>
+    );
+  },
+);
+
 export default function CommentSection({
   reviewId,
   reviewComments,
@@ -52,13 +121,11 @@ export default function CommentSection({
   reviewId: string;
   reviewComments: CommentWithUser[];
 }) {
-  const { data: session } = useSession();
   const [comments, setComments] = useState<CommentWithUser[]>(reviewComments);
   const [newComment, setNewComment] = useState("");
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [loadingLikes, setLoadingLikes] = useState<Set<string>>(new Set());
-  const [animationParent] = useAutoAnimate({ duration: 500 });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,21 +134,9 @@ export default function CommentSection({
       console.log(new_cuid);
       setLoading(true);
       // oone day , ill try to use the new hook useOptimistic here .that day will never come
-      const comment: CommentWithUser = {
-        // this is ugly , lets keep it a secret
-        userId: "1", // we do alittle bit of trolling
-        reviewId: reviewId, // also here
-        user: {
-          name: session?.user?.name || "Current User",
-          image: session?.user?.image || "image",
-        },
-        comment: newComment.trim(),
-        id: new_cuid,
-        createdAt: new Date(),
-        anonymous: isAnonymous,
-        likes: 0,
-        commentLikes: [],
-      };
+      // const comment: CommentWithUser = {
+      //   // this is ugly , lets keep it a secret
+      //   userId: "1", // we do alittle bit of trolling
       const res = await fetch("/api/addComment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -97,13 +152,15 @@ export default function CommentSection({
         setLoading(false);
         return;
       }
+      const { comment }: { comment: CommentWithUser } = await res.json();
+      comment.createdAt = new Date(comment.createdAt);
       setComments([comment, ...comments]);
       setNewComment("");
       setLoading(false);
     }
   };
 
-  const handleLike = async (id: string) => {
+  const handleLike = useCallback(async (id: string) => {
     setLoadingLikes((prev) => new Set(prev).add(id));
     try {
       const res = await fetch("/api/updateComment", {
@@ -125,17 +182,18 @@ export default function CommentSection({
         });
       }
 
-      setComments(
-        comments.map((comment) =>
-          comment.id === id
-            ? {
-                ...comment,
-                likes: comment.likes + 1,
-                commentLikes: [...comment.commentLikes, { commentId: id }],
-              }
-            : comment,
-        ),
-      );
+      setComments((prevComments) => {
+        return prevComments.map((comment) => {
+          if (comment.id === id) {
+            return {
+              ...comment,
+              likes: comment.likes + 1,
+              commentLikes: [...comment.commentLikes, { commentId: id }],
+            };
+          }
+          return comment;
+        });
+      });
     } catch (err) {
       console.log("error while liking comment", err);
     } finally {
@@ -145,7 +203,7 @@ export default function CommentSection({
         return newSet;
       });
     }
-  };
+  }, []);
   return (
     <div className="w-full max-w-3xl mx-auto p-6 bg-background rounded-xl shadow-lg">
       <h2 className="text-3xl font-bold mb-8 text-center">Comments</h2>
@@ -181,59 +239,13 @@ export default function CommentSection({
           </Button>
         </div>
       </form>
-      <div className="h-[600px] pr-4" ref={animationParent}>
-        {comments.map((comment, index) => {
-          const hasLiked = comment.commentLikes.length > 0;
-          return (
-            <div key={comment.id}>
-              <div className="flex items-start space-x-4 mb-4">
-                {comment.user ? (
-                  <UserAvatar comment={comment} />
-                ) : (
-                  <Avatar className="w-12 h-12 border-2 border-primary">
-                    <AvatarFallback>
-                      <User className="w-6 h-6" />
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">
-                      {!comment.anonymous
-                        ? comment.user.name
-                        : generateAnonymousId(session?.user?.id)}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {timeAgo.format(comment.createdAt)}
-                    </p>
-                  </div>
-                  <p className="text-base text-foreground ">
-                    {comment.comment}
-                  </p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    cursor-not-allowed
-                    className={`text-muted-foreground hover:text-primary`}
-                    disabled={loadingLikes.has(comment.id) || hasLiked}
-                    onClick={() => handleLike(comment.id)}
-                  >
-                    {loadingLikes.has(comment.id) ? (
-                      <LoaderCircle className={`animate-spin w-4 h-4 mr-1 `} />
-                    ) : (
-                      <ThumbsUp
-                        className={`w-4 h-4 mr-1 ${loadingLikes.has(comment.id) || hasLiked ? "text-primary" : ""}`}
-                      />
-                    )}
-                    <span>{comment.likes}</span>
-                  </Button>
-                </div>
-              </div>
-              {index < comments.length - 1 && <Separator className="my-6" />}
-            </div>
-          );
-        })}
-      </div>
+      <CommentList
+        comments={comments}
+        handleLike={handleLike}
+        loadingLikes={loadingLikes}
+      />
     </div>
   );
 }
+
+CommentList.displayName = "CommentList";

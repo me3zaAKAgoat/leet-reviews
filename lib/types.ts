@@ -72,6 +72,11 @@ export type CompanyType = Prisma.Company;
 export type ReviewType = Prisma.Review;
 export type ReviewWithCompany = Prisma.Review & {
   company: Prisma.Company;
+} & {
+  user?: {
+    name: string | null;
+    image: string | null;
+  };
 };
 export type CommentType = Prisma.Comment;
 

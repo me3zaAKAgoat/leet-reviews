@@ -7,6 +7,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { auth } from "@/lib/auth";
+import prisma from "@/lib/prisma";
+import { CompanyType } from "@/lib/types";
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -20,7 +22,14 @@ export default async function Layout({
   const session = await auth();
 
   if (!session) redirect("/signin");
-
+  let companies: CompanyType[] = [];
+  let hasError = false;
+  try {
+    companies = await prisma.company.findMany();
+  } catch (e) {
+    hasError = true;
+    console.error(e);
+  }
   return (
     <>
       <header className="flex items-center justify-between p-4">
@@ -33,7 +42,7 @@ export default async function Layout({
         </Link>
         <div className="flex items-center gap-4">
           <Toaster />
-          <ReviewModalComponent />
+          <ReviewModalComponent companies={companies} hasError={hasError} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Avatar>

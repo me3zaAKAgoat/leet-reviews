@@ -35,7 +35,13 @@ import { ComboboxDemoComponent } from "./combobox-demo";
 import { useEffect, useState } from "react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 
-export function ReviewModalComponent() {
+export function ReviewModalComponent({
+  companies,
+  hasError,
+}: {
+  companies: CompanyType[];
+  hasError: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const {
     register,
@@ -90,6 +96,12 @@ export function ReviewModalComponent() {
       error: "Failed To Add the Review",
     });
   };
+
+  useEffect(() => {
+    if (hasError) {
+      toast.error("Failed to fetch companies , Please try again later");
+    }
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

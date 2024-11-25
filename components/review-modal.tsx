@@ -101,7 +101,7 @@ export function ReviewModalComponent({
     if (hasError) {
       toast.error("Failed to fetch companies , Please try again later");
     }
-  }, []);
+  }, [hasError]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

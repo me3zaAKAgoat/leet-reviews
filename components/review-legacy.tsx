@@ -113,7 +113,7 @@ export default function ReviewLegacy({
     <div className="container mx-auto max-w-screen-xl px-4 py-8">
       {/* <div className="max-w-[1024px]  px-4 py-8"> */}
       <h1 className="text-3xl font-bold mb-8">Internship Reviews</h1>
-      <div className="flex gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-[30%_1fr] gap-8">
         <aside className="space-y-6">
           <Card>
             <CardHeader>

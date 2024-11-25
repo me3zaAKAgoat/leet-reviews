@@ -13,7 +13,10 @@ export const commentSchema = z.object({
 
 export const reviewSchema = z
   .object({
-    jobTitle: z.string().min(2, "Job title is required"),
+    jobTitle: z
+      .string()
+      .min(2, "Job title is required")
+      .max(100, "Job title is too long"),
     companyId: z.string().min(2, "Company is required"),
     contractType: z.enum(["INTERNSHIP", "CDI", "CDD", "FREELANCE", "OTHER"]),
     jobSource: z.enum([

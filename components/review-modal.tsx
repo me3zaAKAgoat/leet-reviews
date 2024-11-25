@@ -24,7 +24,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { CompanyType, ReviewFormValues, reviewSchema } from "@/lib/types";
+import { ReviewFormValues, reviewSchema } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -45,6 +45,7 @@ export function ReviewModalComponent({
   const [open, setOpen] = useState(false);
   const {
     register,
+    unregister,
     control,
     handleSubmit,
     watch,
@@ -61,11 +62,18 @@ export function ReviewModalComponent({
     },
   });
 
-  const salaryType = watch("salaryType");
+  const [salaryType, setSalaryType] = useState("EXACT");
 
-  // const onError = (errors: any) => {
-  //   console.log(errors);
-  // };
+  useEffect(() => {
+    if (watch("salaryType") === "EXACT") {
+      setSalaryType("EXACT");
+      unregister("salaryMin");
+      unregister("salaryMax");
+    } else {
+      setSalaryType("RANGE");
+    }
+  }, [watch("salaryType")]);
+
   const onSubmit = async (data: ReviewFormValues) => {
     console.log(data);
     // Handle form submission
@@ -122,7 +130,6 @@ export function ReviewModalComponent({
             <Label htmlFor="companyId">Company</Label>
 
             <ComboboxDemoComponent
-              companies={companies}
               control={control}
               errors={errors.companyId}
             />

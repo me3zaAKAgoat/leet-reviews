@@ -34,6 +34,7 @@ import toast from "react-hot-toast";
 import { ComboboxDemoComponent } from "./combobox-demo";
 import { useEffect, useState } from "react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 export function ReviewModalComponent({
   companies,
@@ -42,6 +43,7 @@ export function ReviewModalComponent({
   companies: CompanyType[];
   hasError: boolean;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const {
     register,
@@ -91,6 +93,7 @@ export function ReviewModalComponent({
           throw new Error(`Statues code ${data.status}`);
         }
         setOpen(false);
+        router.push("/dashboard");
         return "Review added";
       },
       error: "Failed To Add the Review",

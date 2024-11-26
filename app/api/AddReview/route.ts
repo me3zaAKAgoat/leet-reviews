@@ -53,6 +53,5 @@ export const POST = auth(async function POST(req) {
       { status: 500 },
     );
   }
-
   return NextResponse.json({ message: "Review added" });
 });

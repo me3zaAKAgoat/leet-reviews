@@ -24,7 +24,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { ReviewFormValues, reviewSchema } from "@/lib/types";
+import { CompanyType, ReviewFormValues, reviewSchema } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
@@ -34,6 +34,7 @@ import toast from "react-hot-toast";
 import { ComboboxDemoComponent } from "./combobox-demo";
 import { useEffect, useState } from "react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { useRouter } from "next/navigation";
 
 export function ReviewModalComponent({
   companies,
@@ -42,6 +43,7 @@ export function ReviewModalComponent({
   companies: CompanyType[];
   hasError: boolean;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const {
     register,
@@ -91,6 +93,7 @@ export function ReviewModalComponent({
           throw new Error(`Statues code ${data.status}`);
         }
         setOpen(false);
+        router.push("/dashboard");
         return "Review added";
       },
       error: "Failed To Add the Review",
@@ -101,7 +104,7 @@ export function ReviewModalComponent({
     if (hasError) {
       toast.error("Failed to fetch companies , Please try again later");
     }
-  }, []);
+  }, [hasError]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -130,6 +133,7 @@ export function ReviewModalComponent({
             <Label htmlFor="companyId">Company</Label>
 
             <ComboboxDemoComponent
+              companies={companies}
               control={control}
               errors={errors.companyId}
             />

@@ -46,21 +46,20 @@ async function AddCompany(newCompany: string) {
 }
 
 export function ComboboxDemoComponent({
+  companies,
   control,
   errors,
 }: {
+  companies: CompanyType[];
   control: Control<ReviewFormValues>;
   errors: FieldError | undefined;
 }) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
-  const [companies, setCompanies] = React.useState<
-    {
-      value: string;
-      label: string;
-    }[]
-  >([]);
   const [inputValue, setInputValue] = React.useState("");
+  const [companies_box, setCompanies_box] = React.useState(
+    companies.map((company) => ({ value: company.id, label: company.name })),
+  );
 
   const handleSelect = async (
     currentValue: string,
@@ -76,7 +75,7 @@ export function ComboboxDemoComponent({
 
       // should add a modal to check are you sure you want to add this new company
       //handle error tho later
-      setCompanies([...companies, newOption]);
+      setCompanies_box([...companies_box, newOption]);
       setValue(newOption.value);
       onChange(newOption.value);
     } else {
@@ -93,19 +92,6 @@ export function ComboboxDemoComponent({
       setInputValue("");
     }
   }, [open]);
-
-  React.useEffect(() => {
-    fetch("/api/getCompanies")
-      .then((res) => res.json())
-      .then((data) =>
-        setCompanies(
-          data.map((company: CompanyType) => ({
-            value: company.id,
-            label: company.name,
-          })),
-        ),
-      );
-  }, []);
 
   return (
     <Controller
@@ -124,7 +110,8 @@ export function ComboboxDemoComponent({
               )}
             >
               {value
-                ? companies.find((company) => company.value === value)?.label
+                ? companies_box.find((company) => company.value === value)
+                    ?.label
                 : "Select Company..."}
               <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
@@ -139,7 +126,7 @@ export function ComboboxDemoComponent({
               />
               <CommandList>
                 <CommandGroup>
-                  {companies.map((company) => (
+                  {companies_box.map((company) => (
                     <CommandItem
                       key={company.value}
                       value={company.value}
@@ -164,12 +151,16 @@ export function ComboboxDemoComponent({
                   disabled={
                     !(
                       !!inputValue &&
-                      !companies.find((company) => company.label === inputValue)
+                      !companies_box.find(
+                        (company) => company.label === inputValue,
+                      )
                     )
                   }
                   className={`${
                     !!inputValue &&
-                    !companies.find((company) => company.label === inputValue)
+                    !companies_box.find(
+                      (company) => company.label === inputValue,
+                    )
                       ? ""
                       : "hidden"
                   }`}

@@ -131,7 +131,7 @@ export default function ReviewShowCase({
               </span>
             </div>
           )}
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground break-words whitespace-pre-wrap">
             {reviewData.interviewProcess}
           </p>
         </div>
@@ -140,7 +140,9 @@ export default function ReviewShowCase({
 
         <div>
           <h3 className="font-semibold mb-2 text-lg">Review</h3>
-          <p className="text-sm leading-relaxed">{reviewData.description}</p>
+          <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+            {reviewData.description}
+          </p>
         </div>
         <Separator />
 

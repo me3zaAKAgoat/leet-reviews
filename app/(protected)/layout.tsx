@@ -1,12 +1,13 @@
 import { ReviewModalComponent } from "@/components/review-modal";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { auth } from "@/lib/auth";
+import { auth, signOut } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { CompanyType } from "@/lib/types";
 import { AvatarFallback } from "@radix-ui/react-avatar";
@@ -56,7 +57,17 @@ export default async function Layout({
 
             <DropdownMenuContent>
               <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Sign Out</DropdownMenuItem>
+              <form
+                action={async () => {
+                  "use server";
+                  await signOut();
+                }}
+                className="w-full"
+              >
+                <DropdownMenuItem>
+                  <button>Sign Out</button>
+                </DropdownMenuItem>
+              </form>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

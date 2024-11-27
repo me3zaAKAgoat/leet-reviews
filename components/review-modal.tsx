@@ -73,8 +73,9 @@ export function ReviewModalComponent({
       unregister("salaryMax");
     } else {
       setSalaryType("RANGE");
+      unregister("salary");
     }
-  }, [watch("salaryType")]);
+  }, [watch("salaryType"), unregister]);
 
   const onSubmit = async (data: ReviewFormValues) => {
     console.log(data);

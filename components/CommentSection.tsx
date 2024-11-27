@@ -83,7 +83,7 @@ const CommentList = memo(
                       {timeAgo.format(comment.createdAt)}
                     </p>
                   </div>
-                  <p className="text-base text-foreground ">
+                  <p className="text-base text-foreground break-all hyphens-auto whitespace-pre-line overflow-wrap-anywhere">
                     {comment.comment}
                   </p>
                   <Button

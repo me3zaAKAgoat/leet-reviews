@@ -10,7 +10,7 @@ const quotes = [
 export default function NotSignIn() {
   const selectedQuote = quotes[Math.floor(Math.random() * quotes.length)];
   return (
-    <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
+    <section className="py-12 md:py-24 lg:py-32 xl:py-48">
       <div className="container px-4 md:px-6 flex flex-col items-center text-center space-y-6">
         <div className="flex flex-col space-y-4">
           <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl xl:text-6xl">

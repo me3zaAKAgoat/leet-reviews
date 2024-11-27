@@ -45,6 +45,7 @@ function _42Icon(props: React.SVGProps<SVGSVGElement>) {
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
+      {...props}
     >
       <path
         d="M0.799988 15.3149H9.05249V19.4499H13.17V11.9774H4.93249L13.17 3.72241H9.05249L0.799988 11.9774V15.3149Z"

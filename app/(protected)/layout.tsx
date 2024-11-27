@@ -1,6 +1,5 @@
 import { ReviewModalComponent } from "@/components/review-modal";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
